@@ -9,9 +9,6 @@ import javax.xml.ws.Holder;
 
 import de.feig.FedmIscReader;
 import de.opentiming.feigws.connector.FedmConnect;
-import de.opentiming.feigws.helper.ReadProperties;
-import de.opentiming.feigws.helper.ValidateInputString;
-import de.opentiming.feigws.server.FeigWSServer;
 
 
 @WebService(portName = "FeigWS", serviceName = "FeigWS")
@@ -19,14 +16,12 @@ import de.opentiming.feigws.server.FeigWSServer;
 
 public class FeigWSService {
 
-	private ReadProperties props;
 	private FedmIscReader fedm;
 	private FedmConnect con;
 	private String host;
 
 	public FeigWSService() {
-		con = new FedmConnect();		
-		props = FeigWSServer.getProps();
+		con = new FedmConnect();
 	}
 
 	/*
@@ -99,38 +94,38 @@ public class FeigWSService {
 
 		if (con.isConnected()) {
 			
-			if(ValidateInputString.validateInput("time", nt)) {
+			if(validateInput("time", nt)) {
 				SetTime t = new SetTime();
 				t.setFedmIscReader(fedm);
 				t.setTime();
 			}
 			
-			if(ValidateInputString.validateInput("power", np)) {
+			if(validateInput("power", np)) {
 				SetPower p = new SetPower();
 				p.setFedmIscReader(fedm);
 				p.setPower(np);
 			}
 
-			if(ValidateInputString.validateInput("antenna", na)) {
+			if(validateInput("antenna", na)) {
 				SetAntenna a = new SetAntenna();
 				a.setFedmIscReader(fedm);
 				a.setAntennas(na);
 			}
 			
-			if(ValidateInputString.validateInput("trValidTime", ntvt)) {
+			if(validateInput("trValidTime", ntvt)) {
 				SetValidTime vt = new SetValidTime();
 				vt.setFedmIscReader(fedm);
 				vt.setValidTime(ntvt);
 			}
 			
-			if(ValidateInputString.validateInput("mode", nm)) {
+			if(validateInput("mode", nm)) {
 				SetMode m = new SetMode();
 				m.setFedmIscReader(fedm);
 				m.setMode(nm);
 
 			}
 			
-			if(ValidateInputString.validateInput("resetReaderFile", rf)) {
+			if(validateInput("resetReaderFile", rf)) {
 				ResetReaderFile r = new ResetReaderFile();
 				r.resetReaderFile(host);
 			}
@@ -181,7 +176,33 @@ public class FeigWSService {
 		String[] readerInfo = info.getConfig();
 		return readerInfo;
 	}
+	
+	
+	private static boolean validateInput(String key, String value) {
+		
+		if((key.equalsIgnoreCase("time") || (key.equalsIgnoreCase("resetReaderFile"))) && value.equalsIgnoreCase("true")) {
+			return true;
+		}
+		
 
+		if(key.equalsIgnoreCase("power") || key.equalsIgnoreCase("antenna") || key.equalsIgnoreCase("trValidTime")) {
+		    try {
+		        Integer.parseInt( value );
+		        return true;
+		    } catch( Exception e ) {
+		        return false;
+		    }
+		}
+		
+		if(key.equalsIgnoreCase("mode") && (value.equalsIgnoreCase("BRM") || value.equalsIgnoreCase("ISO"))) {
+			return true;
+		}
+		
+		return false;
+	}
+
+
+	
 	@WebMethod(exclude = true)
 	public void setFedmIscReader(FedmIscReader fedm) {
 		this.fedm = fedm;

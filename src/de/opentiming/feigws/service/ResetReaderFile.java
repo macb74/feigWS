@@ -9,6 +9,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import de.opentiming.feigws.helper.FeigWsHelper;
+
 public class ResetReaderFile {
 
 	public String resetReaderFile(String ip) {
@@ -21,7 +23,7 @@ public class ResetReaderFile {
 			if (Files.notExists(file)) {
 				Files.write(file, "".getBytes());
 			} else {
-				if(countLines(file) != 0) {
+				if(FeigWsHelper.countLines(file) != 0) {
 					Files.move(file, Paths.get(dir + now + "_" + filename));
 					Files.write(file, "".getBytes());
 				}
@@ -36,17 +38,7 @@ public class ResetReaderFile {
 
 	}
 
-	private int countLines(Path file) {
-		int count = 0;
-		try {
-			List<String> lines = Files.readAllLines(file);
-			count = lines.size();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return count;
-	}
-
+	
 	private String getNewNum() {
 		List<String> lines;
 		String filename = "index.file";
