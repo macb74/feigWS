@@ -20,7 +20,7 @@ public class FedmConnect implements FeIscListener {
         	        	
         	while(fedm.isConnected()) {
         		LogWriter.write(host, "waiting\n");
-        		Thread.sleep(500);
+        		Thread.sleep(200);
         	}
         	
     		fedm.connectTCP(host, props.getIntPropertie("reader.port"));

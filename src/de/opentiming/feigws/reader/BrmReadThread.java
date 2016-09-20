@@ -27,210 +27,216 @@ import de.opentiming.feigws.service.SetTime;
  * @author Martin Bussmann
  */
 public class BrmReadThread implements Runnable {
-	
-	public String filename;
+
+	private String filename;
+	private boolean firstConnect;
+
+	public BrmReadThread() {
+		firstConnect = true;
+	}
 
 	public synchronized void run() {
-        try {  
-		
-            while (isRunning()) {
+		try {
 
-				filename = "output/" + host.replaceAll("\\.", "_") + ".out";
+			filename = "output/" + host.replaceAll("\\.", "_") + ".out";
 
-            	// read buffer
-            	FedmConnect con = new FedmConnect();
-            	con.setFedmIscReader(fedm);
-            	con.setHost(host);
-            	con.fedmOpenConnection();
-            	
-                if(con.isConnected()) {                		            	
-	   		        fedm.setTableSize(FedmIscReaderConst.BRM_TABLE, 256);
-	            	
-	            	readBuffer(this.fedm, this.sets, this.db);
-	            	con.fedmCloseConnection();
+			FedmConnect con = new FedmConnect();
+			con.setFedmIscReader(fedm);
+			con.setHost(host);
 
-                }
-                
-                Thread.sleep(sleepTime);
-            }
-        }
-        catch (InterruptedException e) {} catch (FedmException e) {
+			SetTime t = new SetTime();
+			t.setFedmIscReader(fedm);
+
+			while (isRunning()) {
+
+				con.fedmOpenConnection();
+
+				if (con.isConnected()) {
+					
+					if (firstConnect) {
+						t.setTime();
+						LogWriter.write(host, "set Time\n");
+						firstConnect = false;
+					}
+					
+					fedm.setTableSize(FedmIscReaderConst.BRM_TABLE, 256);
+					readBuffer(this.fedm, this.sets);
+					con.fedmCloseConnection();
+
+				} else {
+					firstConnect = true;
+				}
+
+				Thread.sleep(sleepTime);
+			}
+		} catch (InterruptedException e) {
+		} catch (FedmException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-        
-    }
 
-	private void readBuffer(FedmIscReader fedm, int sets, boolean db) {
-        		
+	}
+
+	private void readBuffer(FedmIscReader fedm, int sets) {
+
 		if (fedm == null) {
-            return;
-        }
-        
-        FedmIscReaderInfo readerInfo = fedm.getReaderInfo();
-        // read data from reader
-        // read max. possible no. of data sets: request 255 data sets
-        try {
-            switch(readerInfo.readerType)
-            {
-                case de.feig.FedmIscReaderConst.TYPE_ISCLR200:
-                    fedm.setData(FedmIscReaderID.FEDM_ISCLR_TMP_BRM_SETS, sets);
-                    fedm.sendProtocol((byte)0x21);
-                    break;
-                default:
-                	fedm.setData(FedmIscReaderID.FEDM_ISC_TMP_ADV_BRM_SETS, sets);
-                    fedm.sendProtocol((byte)0x22);
-                    break;               
-            }
+			return;
+		}
 
-            
-            FedmBrmTableItem[] brmItems = null;
-            LogWriter.write(host, "* " + fedm.getTableLength(FedmIscReaderConst.BRM_TABLE) + " *********************\n");
-            
-            if (fedm.getTableLength(FedmIscReaderConst.BRM_TABLE) > 0)
-                brmItems = (FedmBrmTableItem[])fedm.getTable(FedmIscReaderConst.BRM_TABLE);
-            
-            if (brmItems != null) {
-                            	
-            	String[] serialNumberHex = new String[brmItems.length];
-            	//String[] serialNumber    = new String[brmItems.length];
-            	int[] serialNumber    	 = new int[brmItems.length];
-            	String[] uniqeNumber     = new String[brmItems.length];
-                String[] data            = new String[brmItems.length];
-                String[] date            = new String[brmItems.length];
-                String[] time            = new String[brmItems.length];
-                String[] type            = new String[brmItems.length];
-                String[] antNr           = new String[brmItems.length];
-                String[] rssi            = new String[brmItems.length];
+		FedmIscReaderInfo readerInfo = fedm.getReaderInfo();
+		// read data from reader
+		// read max. possible no. of data sets: request 255 data sets
+		try {
+			switch (readerInfo.readerType) {
+			case de.feig.FedmIscReaderConst.TYPE_ISCLR200:
+				fedm.setData(FedmIscReaderID.FEDM_ISCLR_TMP_BRM_SETS, sets);
+				fedm.sendProtocol((byte) 0x21);
+				break;
+			default:
+				fedm.setData(FedmIscReaderID.FEDM_ISC_TMP_ADV_BRM_SETS, sets);
+				fedm.sendProtocol((byte) 0x22);
+				break;
+			}
 
-                String cTime = getComputerTime();
-                String csvFileContent = "";
-                
-                for (int i = 0; i < brmItems.length; i++) {
-                	
-                	if (brmItems[i].isDataValid(FedmIscReaderConst.DATA_SNR)) {
-                        serialNumberHex[i] = brmItems[i].getStringData(FedmIscReaderConst.DATA_SNR);
+			FedmBrmTableItem[] brmItems = null;
+			LogWriter.write(host,
+					"* " + fedm.getTableLength(FedmIscReaderConst.BRM_TABLE) + " *********************\n");
 
-                        // zu kurze Seriennummern werden abgefangen
-                        while (serialNumberHex[i].length() < 8) {
-            				serialNumberHex[i] = "0" + serialNumberHex[i];
-            			}
-                        
-                        if (serialNumberHex[i].length() > 8) {
-                        	serialNumberHex[i] = serialNumberHex[i].substring(0, 8);
-                        }
+			if (fedm.getTableLength(FedmIscReaderConst.BRM_TABLE) > 0)
+				brmItems = (FedmBrmTableItem[]) fedm.getTable(FedmIscReaderConst.BRM_TABLE);
 
-                        //serialNumber[i] = serialNumberHex[i].substring(serialNumberHex[i].length()-4, serialNumberHex[i].length());
-                        serialNumber[i] = Integer.parseInt(serialNumberHex[i].substring(serialNumberHex[i].length()-4, serialNumberHex[i].length()),16);
-                        uniqeNumber[i] = serialNumberHex[i].substring(0, serialNumberHex[i].length() -4);
-                        
-                	}
-                    
-                    if (brmItems[i].isDataValid(FedmIscReaderConst.DATA_RxDB)) { // data block
-                        byte[] b = brmItems[i].getByteArrayData(FedmIscReaderConst.DATA_RxDB, brmItems[i].getBlockAddress(), brmItems[i].getBlockCount());
-                        data[i] = FeHexConvert.byteArrayToHexString(b);
-                        System.out.println("DATA_RxDB: " + FeHexConvert.byteArrayToHexString(b));
-                    }
-                                         
-                    if (brmItems[i].isDataValid(FedmIscReaderConst.DATA_TRTYPE)) { // tranponder type
-                        type[i] = brmItems[i].getStringData(FedmIscReaderConst.DATA_TRTYPE);
-                        //System.out.println("DATA_TRTYPE: "+ brmItems[i].getStringData(FedmIscReaderConst.DATA_TRTYPE));
-                    }
-                    
+			if (brmItems != null) {
+
+				String[] serialNumberHex = new String[brmItems.length];
+				// String[] serialNumber = new String[brmItems.length];
+				int[] serialNumber = new int[brmItems.length];
+				String[] uniqeNumber = new String[brmItems.length];
+				String[] data = new String[brmItems.length];
+				String[] date = new String[brmItems.length];
+				String[] time = new String[brmItems.length];
+				String[] type = new String[brmItems.length];
+				String[] antNr = new String[brmItems.length];
+				String[] rssi = new String[brmItems.length];
+
+				String cTime = getComputerTime();
+				String csvFileContent = "";
+
+				for (int i = 0; i < brmItems.length; i++) {
+
+					if (brmItems[i].isDataValid(FedmIscReaderConst.DATA_SNR)) {
+						serialNumberHex[i] = brmItems[i].getStringData(FedmIscReaderConst.DATA_SNR);
+
+						// zu kurze Seriennummern werden abgefangen
+						while (serialNumberHex[i].length() < 8) {
+							serialNumberHex[i] = "0" + serialNumberHex[i];
+						}
+
+						if (serialNumberHex[i].length() > 8) {
+							serialNumberHex[i] = serialNumberHex[i].substring(0, 8);
+						}
+
+						// serialNumber[i] =
+						// serialNumberHex[i].substring(serialNumberHex[i].length()-4,
+						// serialNumberHex[i].length());
+						serialNumber[i] = Integer.parseInt(serialNumberHex[i].substring(serialNumberHex[i].length() - 4,
+								serialNumberHex[i].length()), 16);
+						uniqeNumber[i] = serialNumberHex[i].substring(0, serialNumberHex[i].length() - 4);
+
+					}
+
+					if (brmItems[i].isDataValid(FedmIscReaderConst.DATA_RxDB)) { // data
+																					// block
+						byte[] b = brmItems[i].getByteArrayData(FedmIscReaderConst.DATA_RxDB,
+								brmItems[i].getBlockAddress(), brmItems[i].getBlockCount());
+						data[i] = FeHexConvert.byteArrayToHexString(b);
+						System.out.println("DATA_RxDB: " + FeHexConvert.byteArrayToHexString(b));
+					}
+
+					if (brmItems[i].isDataValid(FedmIscReaderConst.DATA_TRTYPE)) { // tranponder
+																					// type
+						type[i] = brmItems[i].getStringData(FedmIscReaderConst.DATA_TRTYPE);
+						// System.out.println("DATA_TRTYPE: "+
+						// brmItems[i].getStringData(FedmIscReaderConst.DATA_TRTYPE));
+					}
+
 					rssi[i] = getAntData(brmItems[i], "RSSI");
-                    antNr[i] = getAntData(brmItems[i], "NR");
-                                        
+					antNr[i] = getAntData(brmItems[i], "NR");
+
 					if (brmItems[i].isDataValid(FedmIscReaderConst.DATA_TIMER)) { // Timer
-                        
-						switch(readerInfo.readerType)
-			            {
-			                case de.feig.FedmIscReaderConst.TYPE_ISCLRU1002:
-			                	date[i]   = SetTime.getComputerDate();
-			                	break;
-			                default:
-								String year  = Integer.toString(brmItems[i].getReaderTime().getYear());
-		                        String month = Integer.toString(brmItems[i].getReaderTime().getMonth());
-		                        String day   = Integer.toString(brmItems[i].getReaderTime().getDay());
-		                        date[i] = year + "-" + month + "-" + day;
-			            		break;
-			            }
-						
+
+						switch (readerInfo.readerType) {
+						case de.feig.FedmIscReaderConst.TYPE_ISCLRU1002:
+							date[i] = SetTime.getComputerDate();
+							break;
+						default:
+							String year = Integer.toString(brmItems[i].getReaderTime().getYear());
+							String month = Integer.toString(brmItems[i].getReaderTime().getMonth());
+							String day = Integer.toString(brmItems[i].getReaderTime().getDay());
+							date[i] = year + "-" + month + "-" + day;
+							break;
+						}
 
 						String hour = Integer.toString(brmItems[i].getReaderTime().getHour());
-                        if (hour.length() == 1) {
-                            hour = "0" + hour;
-                        }
-                        String minute = Integer.toString(brmItems[i].getReaderTime().getMinute());
-                        if (minute.length() == 1) {
-                            minute = "0" + minute;
-                        }
-                        String second = Integer.toString(brmItems[i].getReaderTime().getMilliSecond() / 1000);
-                        if (second.length() == 1) {
-                            second = "0" + second;
-                        }
-                        String millisecond = Integer.toString(brmItems[i].getReaderTime().getMilliSecond() % 1000);
-                        if (millisecond.length() == 1) {
-                            millisecond = "0" + millisecond;
-                        }
-                        if (millisecond.length() == 2) {
-                            millisecond = "0" + millisecond;
-                        }
-                        
-                        
-                        time[i] = hour
-                                 + ":"
-                                 + minute
-                                 + ":"
-                                 + second
-                                 + "."
-                                 + millisecond;
-                    }
+						if (hour.length() == 1) {
+							hour = "0" + hour;
+						}
+						String minute = Integer.toString(brmItems[i].getReaderTime().getMinute());
+						if (minute.length() == 1) {
+							minute = "0" + minute;
+						}
+						String second = Integer.toString(brmItems[i].getReaderTime().getMilliSecond() / 1000);
+						if (second.length() == 1) {
+							second = "0" + second;
+						}
+						String millisecond = Integer.toString(brmItems[i].getReaderTime().getMilliSecond() % 1000);
+						if (millisecond.length() == 1) {
+							millisecond = "0" + millisecond;
+						}
+						if (millisecond.length() == 2) {
+							millisecond = "0" + millisecond;
+						}
 
-					csvFileContent = csvFileContent           + "\n" + 
-							Integer.toString(serialNumber[i]) + ";" + 
-							date[i]                           + ";" +
-							time[i].substring(0, 8)           + ";" + 
-							time[i].substring(9, 12)          + ";" +
-							host                              + ";" +
-							antNr[i]                          + ";" + 
-							rssi[i]                           + ";" + 
-							uniqeNumber[i]                    + ";" + 
-							cTime;
+						time[i] = hour + ":" + minute + ":" + second + "." + millisecond;
+					}
 
-	                LogWriter.write(host, serialNumberHex[i] + " - " + antNr[i] + " - " + rssi[i] + " - " + serialNumber[i] + "\n");
-                    
-                /*
-                //Senden der Daten an die serielle Schnittstelle
-    	    	if(ReadConfig.getConfig().getString("SERIAL_OUTPUT").equalsIgnoreCase("YES")) {
-    	    		LogWriter.write("Write to serial Port\n");
-	        		SerialSendThread sSendThread = new SerialSendThread();
-	                Thread runner = new Thread(sSendThread);
-	                sSendThread.setMessage(time, serialNumber);
-	                runner.start();
-    	    	}
-    	    	*/
-                }
-                
-				try {					
+					csvFileContent = csvFileContent + "\n" + Integer.toString(serialNumber[i]) + ";" + date[i] + ";"
+							+ time[i].substring(0, 8) + ";" + time[i].substring(9, 12) + ";" + host + ";" + antNr[i]
+							+ ";" + rssi[i] + ";" + uniqeNumber[i] + ";" + cTime;
+
+					LogWriter.write(host,
+							serialNumberHex[i] + " - " + antNr[i] + " - " + rssi[i] + " - " + serialNumber[i] + "\n");
+
+					/*
+					 * //Senden der Daten an die serielle Schnittstelle
+					 * if(ReadConfig.getConfig().getString("SERIAL_OUTPUT").
+					 * equalsIgnoreCase("YES")) {
+					 * LogWriter.write("Write to serial Port\n");
+					 * SerialSendThread sSendThread = new SerialSendThread();
+					 * Thread runner = new Thread(sSendThread);
+					 * sSendThread.setMessage(time, serialNumber);
+					 * runner.start(); }
+					 */
+				}
+
+				try {
 					Path file = Paths.get(filename);
 					if (Files.notExists(file)) {
 						Files.write(file, "".getBytes());
 					}
-					
+
 					Files.write(file, csvFileContent.getBytes(), StandardOpenOption.APPEND);
-	                if ((fedm.getLastError() >= 0)) {
-	                    clearBuffer(this.fedm);
-	                }
+					if ((fedm.getLastError() >= 0)) {
+						clearBuffer(this.fedm);
+					}
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-            }
-				
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	private String getAntData(FedmBrmTableItem fedmBrmTableItem, String key) {
 
@@ -345,11 +351,9 @@ public class BrmReadThread implements Runnable {
 		this.sleepTime = sleepTime;
 	}
 
-
 	private int sleepTime;
 	private String host;
 	private FedmIscReader fedm;
 	private int sets = 255;
 	private boolean running;
-	private boolean db;
 }

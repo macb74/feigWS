@@ -46,8 +46,8 @@ public class FeigWSServer {
 			BrmReadThread brmReadThread = new BrmReadThread();
 		    brmReadThread.setFedmIscReader(fedm);
 		    brmReadThread.setHost(host);
-		    brmReadThread.setSleepTime(Integer.parseInt(props.getPropertie("reader.sleep"))*1000);
-		    brmReadThread.setSets(255);
+		    brmReadThread.setSleepTime(Integer.parseInt(props.getPropertie("reader.sleep")));
+		    brmReadThread.setSets(10);
 		    Thread runner = new Thread(brmReadThread);
 		    brmReadThread.setRunning(true);
 		    runner.start();
