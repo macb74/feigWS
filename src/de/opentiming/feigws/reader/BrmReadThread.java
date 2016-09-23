@@ -65,6 +65,8 @@ public class BrmReadThread implements Runnable {
 
 				} else {
 					firstConnect = true;
+					 // 5 sec. warten, wenn kein Reader verbunden werden konnte
+					Thread.sleep(5000);
 				}
 
 				Thread.sleep(sleepTime);
