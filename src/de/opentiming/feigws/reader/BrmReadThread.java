@@ -21,6 +21,7 @@ import de.feig.FedmIscRssiItem;
 import de.opentiming.feigws.connector.FedmConnect;
 import de.opentiming.feigws.helper.LogWriter;
 import de.opentiming.feigws.service.SetTime;
+import de.opentiming.feigws.sound.SoundPlayer;
 
 /**
  *
@@ -30,6 +31,7 @@ public class BrmReadThread implements Runnable {
 
 	private String filename;
 	private boolean firstConnect;
+	private String soundfile;
 
 	public BrmReadThread() {
 		firstConnect = true;
@@ -38,7 +40,7 @@ public class BrmReadThread implements Runnable {
 	public synchronized void run() {
 		try {
 
-			filename = "output/" + host.replaceAll("\\.", "_") + ".out";
+			filename = "output/Aktuell_" + host.replaceAll("\\.", "_") + ".out";
 
 			FedmConnect con = new FedmConnect();
 			con.setFedmIscReader(fedm);
@@ -109,6 +111,8 @@ public class BrmReadThread implements Runnable {
 
 			if (brmItems != null) {
 
+				new SoundPlayer(soundfile);
+				
 				String[] serialNumberHex = new String[brmItems.length];
 				// String[] serialNumber = new String[brmItems.length];
 				int[] serialNumber = new int[brmItems.length];
@@ -124,7 +128,7 @@ public class BrmReadThread implements Runnable {
 				String csvFileContent = "";
 
 				for (int i = 0; i < brmItems.length; i++) {
-
+										
 					if (brmItems[i].isDataValid(FedmIscReaderConst.DATA_SNR)) {
 						serialNumberHex[i] = brmItems[i].getStringData(FedmIscReaderConst.DATA_SNR);
 
@@ -351,6 +355,10 @@ public class BrmReadThread implements Runnable {
 
 	public void setSleepTime(int sleepTime) {
 		this.sleepTime = sleepTime;
+	}
+	
+	public void setSoundFile(String soundfile) {
+		this.soundfile = soundfile;
 	}
 
 	private int sleepTime;

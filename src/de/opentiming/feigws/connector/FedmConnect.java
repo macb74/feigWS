@@ -16,10 +16,16 @@ public class FedmConnect implements FeIscListener {
 	public void fedmOpenConnection() {
         try {
         	//closeConnection();
+        	boolean waited = false;
         	props = FeigWSServer.getProps();
-        	        	
+        	
         	while(fedm.isConnected()) {
         		LogWriter.write(host, "waiting\n");
+        		Thread.sleep(200);
+        		waited = true;
+        	}
+        	
+        	if(waited) {
         		Thread.sleep(200);
         	}
         	

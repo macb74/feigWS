@@ -48,6 +48,7 @@ public class FeigWSServer {
 		    brmReadThread.setHost(host);
 		    brmReadThread.setSleepTime(Integer.parseInt(props.getPropertie("reader.sleep")));
 		    brmReadThread.setSets(10);
+		    brmReadThread.setSoundFile(props.getPropertie("sound.file"));;		    
 		    Thread runner = new Thread(brmReadThread);
 		    brmReadThread.setRunning(true);
 		    runner.start();

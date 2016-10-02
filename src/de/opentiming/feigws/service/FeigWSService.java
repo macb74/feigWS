@@ -7,7 +7,11 @@ import javax.jws.soap.SOAPBinding;
 import javax.jws.soap.SOAPBinding.Style;
 import javax.xml.ws.Holder;
 
+import de.feig.FePortDriverException;
+import de.feig.FeReaderDriverException;
+import de.feig.FedmException;
 import de.feig.FedmIscReader;
+import de.feig.FedmIscReaderInfo;
 import de.opentiming.feigws.connector.FedmConnect;
 
 
@@ -125,6 +129,7 @@ public class FeigWSService {
 
 			}
 			
+
 			if(validateInput("resetReaderFile", rf)) {
 				ResetReaderFile r = new ResetReaderFile();
 				r.resetReaderFile(host);

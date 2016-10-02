@@ -12,8 +12,14 @@ public class SetAntenna {
 	private FedmIscReader fedm;
 	
 	public void setAntennas(String antennas) {
-		int ant = Integer.parseInt(antennas, 2);
-
+		
+		int ant;
+		try {
+			ant = Integer.parseInt(antennas, 2);
+		} catch (Exception e) {
+			ant = 1;
+		}
+			
 		FedmIscReaderInfo readerInfo = fedm.getReaderInfo();
 		try {
 		
@@ -34,6 +40,7 @@ public class SetAntenna {
 	            	break;                    
 	            default:
 	            	fedm.sendProtocol((byte) 0x76);
+					Thread.sleep(1000);
 	    			break;
 	        }
 			
@@ -44,6 +51,9 @@ public class SetAntenna {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (FedmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

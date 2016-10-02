@@ -15,8 +15,10 @@ public class ResetReaderFile {
 
 	public String resetReaderFile(String ip) {
 
-		String dir = "output/";
-		String filename = ip.replaceAll("\\.", "_") + ".out";
+		String dir         = "output/";
+		String filename    = "Aktuell_" + ip.replaceAll("\\.", "_") + ".out";
+		String newfilename = ip.replaceAll("\\.", "_") + ".out";
+		
 		String now = new SimpleDateFormat("yyyy-MM-dd__HH_mm_ss_SSS").format(new Date());
 		try {
 			Path file = Paths.get(dir + filename);
@@ -24,7 +26,7 @@ public class ResetReaderFile {
 				Files.write(file, "".getBytes());
 			} else {
 				if(FeigWsHelper.countLines(file) != 0) {
-					Files.move(file, Paths.get(dir + now + "_" + filename));
+					Files.move(file, Paths.get(dir + now + "_" + newfilename));
 					Files.write(file, "".getBytes());
 				}
 			}
