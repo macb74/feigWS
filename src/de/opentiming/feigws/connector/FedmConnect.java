@@ -4,6 +4,7 @@ import de.feig.FeIscListener;
 import de.feig.Fedm;
 import de.feig.FedmIscReader;
 import de.feig.FedmIscReaderInfo;
+import de.opentiming.feigws.helper.FeigWsHelper;
 import de.opentiming.feigws.helper.LogWriter;
 import de.opentiming.feigws.helper.ReadProperties;
 import de.opentiming.feigws.server.FeigWSServer;
@@ -13,28 +14,59 @@ public class FedmConnect implements FeIscListener {
 
 	private ReadProperties props;
 	
+	
+	/**
+	 * Verbindung mit dem Reader aufbauen.
+	 * 
+	 * Vorher wird geprüft, ob der Reader verfügbar und nicht bereits belegt ist.
+	 */
 	public void fedmOpenConnection() {
-        try {
+
+    	props = FeigWSServer.getProps();
+				
+		try {
         	//closeConnection();
         	boolean waited = false;
-        	props = FeigWSServer.getProps();
         	
+        	/*
+        	 * Prüfen ob der Reader überhaupt on line ist - vermeidet blockieren der feig lib.
+        	 */
+        	
+    		if(!FeigWsHelper.portIsOpen(host,  props.getIntPropertie("reader.port"), 100) && !fedm.isConnected()) {
+    			LogWriter.write(host, "host not available\n");
+    			return;
+    		}
+        	
+    		/*
+    		 * Sleep nach potIsOpen, da der LRU2000 den Port sonst noch nicht freigegeben hat
+    		 */
+            Thread.sleep(200);
+    		
+
+    		/*
+    		 * Warten bis der Reader frei ist
+    		 */
         	while(fedm.isConnected()) {
         		LogWriter.write(host, "waiting\n");
         		Thread.sleep(200);
         		waited = true;
         	}
         	
+        	
+    		/*
+    		 * Sleep nach dem warten, da der LRU2000 den Port sonst noch nicht freigegeben hat
+    		 */
         	if(waited) {
-        		Thread.sleep(200);
+        		Thread.sleep(100);
         	}
+        	
         	
     		fedm.connectTCP(host, props.getIntPropertie("reader.port"));
 	        fedm.setPortPara("Timeout", "3000");
             //System.out.println("connection opened");
            	
             FedmIscReaderInfo readerInfo = fedm.readReaderInfo();
-            fedm.readCompleteConfiguration(true);
+            //fedm.readCompleteConfiguration(true);
             
         	fedm.addEventListener(this, FeIscListener.RECEIVE_STRING_EVENT);
         	fedm.addEventListener(this, FeIscListener.SEND_STRING_EVENT);
@@ -65,6 +97,10 @@ public class FedmConnect implements FeIscListener {
         }
     }
 
+	
+	/**
+	 * Verbindung zum Reader schließen
+	 */
     public void fedmCloseConnection() {
         try {
             if (fedm.isConnected()) {

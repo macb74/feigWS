@@ -26,6 +26,12 @@ import de.opentiming.feigws.sound.SoundPlayer;
 /**
  *
  * @author Martin Bussmann
+ * 
+ * Thread der den Buffer ausließt und die Inhalte in eine Textdatei schreibt.
+ * 
+ * - Nach einem Reconnect wird die Zeit automatisch neu gesetzt.
+ * - Wenn der Reader nicht verbunden werden konnte wird dies alle 5 sec. erneut versucht
+ * 
  */
 public class BrmReadThread implements Runnable {
 
@@ -56,8 +62,8 @@ public class BrmReadThread implements Runnable {
 				if (con.isConnected()) {
 					
 					if (firstConnect) {
-						t.setTime();
 						LogWriter.write(host, "set Time\n");
+						t.setTime();
 						firstConnect = false;
 					}
 					
@@ -81,6 +87,12 @@ public class BrmReadThread implements Runnable {
 
 	}
 
+	/**
+	 * Auslesen des Buffers
+	 * 
+	 * @param fedm
+	 * @param sets
+	 */
 	private void readBuffer(FedmIscReader fedm, int sets) {
 
 		if (fedm == null) {
@@ -88,6 +100,7 @@ public class BrmReadThread implements Runnable {
 		}
 
 		FedmIscReaderInfo readerInfo = fedm.getReaderInfo();
+		
 		// read data from reader
 		// read max. possible no. of data sets: request 255 data sets
 		try {
@@ -103,14 +116,16 @@ public class BrmReadThread implements Runnable {
 			}
 
 			FedmBrmTableItem[] brmItems = null;
-			LogWriter.write(host,
-					"* " + fedm.getTableLength(FedmIscReaderConst.BRM_TABLE) + " *********************\n");
+			LogWriter.write(host, "* " + fedm.getTableLength(FedmIscReaderConst.BRM_TABLE) + " *********************\n");
 
 			if (fedm.getTableLength(FedmIscReaderConst.BRM_TABLE) > 0)
 				brmItems = (FedmBrmTableItem[]) fedm.getTable(FedmIscReaderConst.BRM_TABLE);
 
 			if (brmItems != null) {
 
+				/*
+				 * Spielt einen Ton ab, wenn neue Tag im Buffer
+				 */
 				new SoundPlayer(soundfile);
 				
 				String[] serialNumberHex = new String[brmItems.length];
@@ -244,6 +259,14 @@ public class BrmReadThread implements Runnable {
 		}
 	}
 
+	/**
+	 * 
+	 * Liefert den RSSI Wert und die Antennennummer
+	 * 
+	 * @param fedmBrmTableItem
+	 * @param key
+	 * @return
+	 */
 	private String getAntData(FedmBrmTableItem fedmBrmTableItem, String key) {
 
 		String res = "0";
@@ -268,8 +291,7 @@ public class BrmReadThread implements Runnable {
 
 			} else {
 				if (key.equals("NR")) {
-					if (fedmBrmTableItem.isDataValid(FedmIscReaderConst.DATA_ANT_NR)) { // ant
-																						// nr
+					if (fedmBrmTableItem.isDataValid(FedmIscReaderConst.DATA_ANT_NR)) { // ant nr
 						res = fedmBrmTableItem.getStringData(FedmIscReaderConst.DATA_ANT_NR);
 						res = getDualValue(res);
 					}
@@ -283,20 +305,31 @@ public class BrmReadThread implements Runnable {
 		return res + "";
 	}
 
+	/**
+	 * Liefert die aktuelle Zeit des Hosts
+	 * 
+	 * @return
+	 */
+	
 	public String getComputerTime() {
 		Date now = new java.util.Date();
 		java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("HH:mm:ss");
 		return sdf.format(now);
 	}
 
+	/**
+	 * Liefert die Antennn an denen ein Tag erkannt wurde im Dual Format
+	 * 
+	 * @param antNr
+	 * @return
+	 */
 	private String getDualValue(String antNr) {
 
 		int r; // Rest r
 
 		int dez = Integer.parseInt(antNr, 16);
 		// int dez = Integer.parseInt(antNr);
-		String dual = ""; // die Ausgabe wird in einer Zeichenkette (string)
-							// gesammelt
+		String dual = ""; // die Ausgabe wird in einer Zeichenkette (string) gesammelt
 
 		do {
 			r = dez % 2; // Rest berechnen

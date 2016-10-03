@@ -11,6 +11,16 @@ public class SetAntenna {
 	
 	private FedmIscReader fedm;
 	
+	/**
+	 * setzt die Antennen.
+	 * 
+	 * 
+	 * Der LRU2000 kann mit 0x76 die angeschlossenen Antennen automatisch erkennen
+	 * 
+	 * Dem LRU1002 muss man die Antennen als Binary Sting übergeben (erste antenne hinten)
+	 * 
+	 * @param antennas
+	 */
 	public void setAntennas(String antennas) {
 		
 		int ant;
