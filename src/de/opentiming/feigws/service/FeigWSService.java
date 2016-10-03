@@ -122,7 +122,6 @@ public class FeigWSService {
 				SetMode m = new SetMode();
 				m.setFedmIscReader(fedm);
 				m.setMode(nm);
-
 			}
 			
 
@@ -138,7 +137,7 @@ public class FeigWSService {
 			power.value       = readerInfo[4];
 			time.value        = readerInfo[2];
 			
-			con.fedmCloseConnection();
+			//con.fedmCloseConnection();
 		} else {
 			error.value = "Can not connect";
 		}

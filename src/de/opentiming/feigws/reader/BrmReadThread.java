@@ -52,9 +52,6 @@ public class BrmReadThread implements Runnable {
 			con.setFedmIscReader(fedm);
 			con.setHost(host);
 
-			SetTime t = new SetTime();
-			t.setFedmIscReader(fedm);
-
 			while (isRunning()) {
 
 				con.fedmOpenConnection();
@@ -62,14 +59,13 @@ public class BrmReadThread implements Runnable {
 				if (con.isConnected()) {
 					
 					if (firstConnect) {
-						LogWriter.write(host, "set Time\n");
-						t.setTime();
+
 						firstConnect = false;
 					}
 					
 					fedm.setTableSize(FedmIscReaderConst.BRM_TABLE, 256);
 					readBuffer(this.fedm, this.sets);
-					con.fedmCloseConnection();
+					//con.fedmCloseConnection();
 
 				} else {
 					firstConnect = true;
