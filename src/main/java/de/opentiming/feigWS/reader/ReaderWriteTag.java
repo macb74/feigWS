@@ -17,7 +17,7 @@ public class ReaderWriteTag {
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	private FedmIscReader fedm;
 	boolean uniqeID = true;
-	private String sNr[];
+	private String snr[];
 	private FedmConnect con;
 	private int tagsPerNumber = 1;
 
@@ -57,15 +57,15 @@ public class ReaderWriteTag {
 				}
 
 				int tagsInZoneBefore = isoReadTag();
-				log.info("{} alte sNr: {}", con.getHost(), toString(sNr));
-				result.put("oldSerialNumberBefore", toString(sNr));
+				log.info("{} alte sNr: {}", con.getHost(), toString(snr));
+				result.put("oldSerialNumberBefore", toString(snr));
 				sleep(200);
 
 				/*
 				 * Tags mit selber ID werden als 1 Tag erkannt
 				 */
 				if ((tagsInZoneBefore <= tagsPerNumber) && (tagsInZoneBefore != 0)) {
-					write = isoTagWrite(sNr, newSnr);
+					write = isoTagWrite(newSnr);
 					sleep(500);
 				} else {
 					log.info("{} es sind {} Tags im Lesebereich", con.getHost(), tagsInZoneBefore);
@@ -75,10 +75,10 @@ public class ReaderWriteTag {
 
 				if (write) {
 					isoReadTag();
-					log.info("{} neue sNr: {}", con.getHost(), toString(sNr));
-					result.put("newSerialNumber", toString(sNr));
+					log.info("{} neue sNr: {}", con.getHost(), toString(snr));
+					result.put("newSerialNumber", toString(snr));
 					
-					if (checkAllSNr(toString(sNr), newSnr)) {
+					if (checkAllSNr(newSnr)) {
 						success = true;
 					} else {
 						log.info("{} ACHTUNG: Neue Nummer ist FALSCH!!!", con.getHost());
@@ -98,24 +98,25 @@ public class ReaderWriteTag {
 	}
 
 	private String toString(String[] nr) {
-		return String.join("",nr);
+		return String.join(" ",nr);
 	}
 
-	private boolean checkAllSNr(String snr, String newSnr) {
-		if (snr.length() > 3) {
-			if (!snr.substring(snr.length()-4).equalsIgnoreCase(newSnr)) {
+	private boolean checkAllSNr(String newSnr) {
+		if(snr.length < tagsPerNumber) {
+			return false;
+		}
+		for (int i = 0; i < snr.length; i++) {
+			if (!snr[i].substring(snr[i].length()-4).equalsIgnoreCase(newSnr)) {
 				return false;
 			}
-		} else {
-			return false;
 		}
 		return true;
 	}
 
-	private boolean isoTagWrite(String[] snr, String newSnr) {
+	private boolean isoTagWrite(String newSnr) {
 
-		String[] oldEpcLngs = new String[sNr.length];
-		String[] oldEPC = new String[sNr.length];
+		String[] oldEpcLngs = new String[snr.length];
+		String[] oldEPC = new String[snr.length];
 
 		String hostCommand = "24";
 		String mode = "31";
@@ -139,7 +140,7 @@ public class ReaderWriteTag {
 			 * Tag geschrieben - Bei Tags mit gleicher ID muss also immer wieder die erste Seriennummer
 			 * übergeben werden.
 			 */
-			if(sNr.length < tagsPerNumber) { i = 0; } else { i = counter; }
+			if(snr.length < tagsPerNumber) { i = 0; } else { i = counter; }
 			
 			
 			/* 
@@ -206,7 +207,7 @@ public class ReaderWriteTag {
 
 			String[] serialNumber = new String[fedm.getTableLength(FedmIscReaderConst.ISO_TABLE)];
 			String[] tagType = new String[fedm.getTableLength(FedmIscReaderConst.ISO_TABLE)];
-			sNr = new String[fedm.getTableLength(FedmIscReaderConst.ISO_TABLE)];
+			snr = new String[fedm.getTableLength(FedmIscReaderConst.ISO_TABLE)];
 			
 			// System.out.println(fedm.getTableLength(FedmIscReaderConst.ISO_TABLE)
 			// + " Tag in der Zone");
@@ -236,7 +237,7 @@ public class ReaderWriteTag {
 				if (tagType[i].equals("84"))
 					tagType[i] = "EPC Class1 Gen2 UHF";
 
-				sNr[i] = serialNumber[i];
+				snr[i] = serialNumber[i];
 			}
 		} catch (FePortDriverException e) {
 			// TODO Auto-generated catch block
