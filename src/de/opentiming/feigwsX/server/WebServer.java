@@ -1,32 +1,22 @@
 package de.opentiming.feigws.server;
 
-import java.io.FileInputStream;
-import java.net.InetSocketAddress;
-import java.security.KeyStore;
-import java.security.SecureRandom;
+import java.util.Map;
 
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManagerFactory;
+import javax.xml.ws.Endpoint;
 
-import com.sun.net.httpserver.BasicAuthenticator;
-import com.sun.net.httpserver.HttpContext;
-import com.sun.net.httpserver.HttpServer;
-import com.sun.net.httpserver.HttpsConfigurator;
-import com.sun.net.httpserver.HttpsServer;
+import de.feig.FedmIscReader;
+import de.opentiming.feigws.service.FeigWSService;
 
 public class WebServer {
 
-	private String keystoreFile;
-	private String keyPass;
 	private String hostname;
-	private int port;
+	private String port;
 	private String context;
+	private Map<String, FedmIscReader> readerConnectors;
 
-	public HttpContext createWebServer() {
+	public Endpoint createWebServer() {
 		
-		HttpContext httpContext = null;
-		
+		Endpoint endpoint = null;
 		try {
 //			SSLContext ssl = SSLContext.getInstance("TLS");
 //
@@ -56,37 +46,30 @@ public class WebServer {
 					
 //			httpsServer.start();
 
-			HttpServer httpServer = HttpServer.create(new InetSocketAddress(hostname, port), 10);
-			httpContext = httpServer.createContext(context);
-
-			httpServer.start();
-
-			
+		    endpoint = Endpoint.publish( "http://" + hostname + ":" + port + context, new FeigWSService(readerConnectors) );
 			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		return httpContext;
+
+		return endpoint;
 	}
 
-	public void setKeystore(String keystore) {
-		this.keystoreFile = keystore;
-	}
-
-	public void setKeyPass(String keyPass) {
-		this.keyPass = keyPass;	
-	}
 
 	public void setHostname(String hostname) {
 		this.hostname = hostname;
 	}
 
-	public void setPort(int port) {
+	public void setPort(String port) {
 		this.port = port;
 	}
 	
 	public void setHttpContext(String context) {
 		this.context = context;
+	}
+
+	public void setReaderConnectors(Map<String, FedmIscReader> readerConnectors) {
+		this.readerConnectors = readerConnectors;
 	}
 }

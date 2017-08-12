@@ -1,41 +1,43 @@
-package de.opentiming.feigws.connector;
+package de.opentiming.feigWS.reader;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.feig.FeIscListener;
 import de.feig.Fedm;
+import de.feig.FedmException;
 import de.feig.FedmIscReader;
 import de.feig.FedmIscReaderInfo;
-import de.opentiming.feigws.helper.FeigWsHelper;
-import de.opentiming.feigws.helper.LogWriter;
-import de.opentiming.feigws.helper.ReadProperties;
-import de.opentiming.feigws.server.FeigWSServer;
-import de.opentiming.feigws.service.SetTime;
-
+import de.opentiming.feigWS.help.FeigWsHelper;
 
 public class FedmConnect implements FeIscListener {
-
-	private ReadProperties props;
-    private FedmIscReader fedm;
-	private String host;
 	
-	public FedmConnect() {
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
+    private FedmIscReader fedm;
+    private String host;
+	private int port;
+	private boolean logReaderProtocol = false;
+	
+	public FedmConnect() throws FedmException, Exception {
+		fedm = new de.feig.FedmIscReader();
 	}
 	
 	/**
 	 * Verbindung mit dem Reader aufbauen.
 	 * 
 	 * Vorher wird geprüft, ob der Reader verfügbar und nicht bereits belegt ist.
+	 * @param port 
+	 * @param host 
 	 */
 	public void fedmOpenConnection() {
-
-    	props = FeigWSServer.getProps();
 				
 		try {
         	
-        	/*
-        	 * Prüfen ob der Reader überhaupt on line ist - vermeidet blockieren der feig lib.
+			/*
+        	 * Prüfen ob der Reader überhaupt online ist - vermeidet blockieren der feig lib.
         	 */        	
-    		if(!FeigWsHelper.portIsOpen(host,  props.getIntPropertie("reader.port"), 100) && !fedm.isConnected()) {
-    			LogWriter.write(host, "host not available\n");
+    		if(!FeigWsHelper.portIsOpen(host,  port, 100) && !fedm.isConnected()) {
+    			log.info("{} host not available", host);
     			return;
     		}
         	
@@ -58,10 +60,10 @@ public class FedmConnect implements FeIscListener {
 	        		return;
 	        	}
 	        	
-	        	fedm.connectTCP(host, props.getIntPropertie("reader.port"));
+	        	fedm.connectTCP(host, port);
 		        fedm.setPortPara("Timeout", "3000");
 	            //System.out.println("connection opened");
-	           	
+		        
 	            FedmIscReaderInfo readerInfo = fedm.readReaderInfo();
 	            //fedm.readCompleteConfiguration(true);
 	            
@@ -83,11 +85,11 @@ public class FedmConnect implements FeIscListener {
 	                    fedm.setProtocolFrameSupport(Fedm.PRT_FRAME_STANDARD);
 	                    break;
 	            }
-	            LogWriter.write(host, "open\n");
+	            log.info("{} open", host);
 	            
-				LogWriter.write(host, "set Time\n");
-				SetTime t = new SetTime();
-				t.setFedmIscReader(fedm);
+	            //log.info("{} set Time", host);
+				ReaderTime t = new ReaderTime();
+				t.setReaderCon(this);
 				t.setTime();
 
         	}
@@ -95,7 +97,7 @@ public class FedmConnect implements FeIscListener {
         }
         catch (Exception e) {
             e.printStackTrace();
-            LogWriter.write(host, "can not connect\n");
+            log.info("{} can not connect", host);
         	//System.exit(1);
         }
     }
@@ -111,7 +113,7 @@ public class FedmConnect implements FeIscListener {
 	        	fedm.removeEventListener(this, FeIscListener.SEND_STRING_EVENT);
 	        	fedm.disConnect();
 	            
-	        	LogWriter.write(host, "close\n");
+	        	log.info("{} close", host);
             }
         }
         catch (Exception e) {
@@ -123,25 +125,41 @@ public class FedmConnect implements FeIscListener {
         this.fedm = fedm;
     }
     
+	public FedmIscReader getFedmIscReader() {
+		return fedm;
+	}
+    
     public boolean isConnected() {
         return fedm.isConnected();
     }
-
-	public void setHost(String host) {
-		this.host = host;
-		
-	}
     
+	public void setHost(String reader) {
+		this.host = reader;
+	}
+
+	public void setPort(int port) {
+		this.port = port;
+	}
+
+	public String getHost() {
+		return host;
+	}
+	
+	public void logReaderProtocol(boolean lrp) {
+		this.logReaderProtocol = lrp;
+	}
+	
+	
 	@Override
 	public void onReceiveProtocol(FedmIscReader arg0, String arg1) {
 //		protocollListener.setProtocoll(arg1);
-		LogWriter.write(host, arg1);
+		if(logReaderProtocol) { log.info(host + " " + arg1); }
 	}
 
 	@Override
 	public void onSendProtocol(FedmIscReader arg0, String arg1) {
 //		protocollListener.setProtocoll(arg1);
-		LogWriter.write(host, arg1);
+		if(logReaderProtocol) { log.info(host + " " + arg1); }
 	}
 
 	@Override
@@ -155,5 +173,5 @@ public class FedmConnect implements FeIscListener {
 		// TODO Auto-generated method stub
 		
 	}
-	
+
 }

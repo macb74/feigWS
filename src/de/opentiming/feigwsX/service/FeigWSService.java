@@ -1,6 +1,7 @@
 package de.opentiming.feigws.service;
 
-import javax.jws.WebMethod;
+import java.util.Map;
+
 import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
@@ -16,11 +17,11 @@ import de.opentiming.feigws.connector.FedmConnect;
 
 public class FeigWSService {
 
-	private FedmIscReader fedm;
 	private FedmConnect con;
-	private String host;
+	private Map<String, FedmIscReader> readerConnectors;
 
-	public FeigWSService() {
+	public FeigWSService(Map<String, FedmIscReader> readerConnectors) {
+		this.readerConnectors = readerConnectors;
 		con = new FedmConnect();
 	}
 
@@ -66,12 +67,14 @@ public class FeigWSService {
 
 	
 	public void setReaderConfig(
+						
 			@WebParam(name = "power", mode = WebParam.Mode.IN) String np,
 			@WebParam(name = "time", mode = WebParam.Mode.IN) String nt,
 			@WebParam(name = "trValidTime", mode = WebParam.Mode.IN) String ntvt,
 			@WebParam(name = "antenna", mode = WebParam.Mode.IN) String na,
 			@WebParam(name = "mode", mode = WebParam.Mode.IN) String nm,
 			@WebParam(name = "resetReaderFile", mode = WebParam.Mode.IN) String rf,
+			@WebParam(name = "host", mode = WebParam.Mode.IN) String host,
 			@WebParam(name = "antenna", mode = WebParam.Mode.OUT) Holder<String> antenna,
 			@WebParam(name = "trValidTime", mode = WebParam.Mode.OUT) Holder<String> trValidTime,
 			@WebParam(name = "power", mode = WebParam.Mode.OUT) Holder<String> power,
@@ -80,6 +83,7 @@ public class FeigWSService {
 			@WebParam(name = "files", mode = WebParam.Mode.OUT) Holder<String> files,
 			@WebParam(name = "error", mode = WebParam.Mode.OUT) Holder<String> error) {
 
+		
 		error.value       = "0";
 		antenna.value     = "";
 		trValidTime.value = "";
@@ -88,6 +92,7 @@ public class FeigWSService {
 		time.value        = "";
 		files.value       = "";
 
+		FedmIscReader fedm = readerConnectors.get(host);
 		con.setFedmIscReader(fedm);
 		con.setHost(host);
 		con.fedmOpenConnection();
@@ -130,7 +135,7 @@ public class FeigWSService {
 				r.resetReaderFile(host);
 			}
 			
-			String[] readerInfo = getConfig();
+			String[] readerInfo = getConfig(fedm);
 			antenna.value     = readerInfo[3];
 			trValidTime.value = readerInfo[1];
 			mode.value        = readerInfo[0];
@@ -170,7 +175,7 @@ public class FeigWSService {
 	}
 	
 	
-	private String[] getConfig() {
+	private String[] getConfig(FedmIscReader fedm) {
 		Info info = new Info();
 		info.setFedmIscReader(fedm);
 		String[] readerInfo = info.getConfig();
@@ -200,17 +205,5 @@ public class FeigWSService {
 		
 		return false;
 	}
-
-
 	
-	@WebMethod(exclude = true)
-	public void setFedmIscReader(FedmIscReader fedm) {
-		this.fedm = fedm;
-	}
-	
-	@WebMethod(exclude = true)
-	public void setHost(String host) {
-		this.host = host;
-		
-	}
 }

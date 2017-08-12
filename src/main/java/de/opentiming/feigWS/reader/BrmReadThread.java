@@ -1,12 +1,11 @@
-package de.opentiming.feigws.reader;
+package de.opentiming.feigWS.reader;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.Date;
 import java.util.HashMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.feig.FeHexConvert;
 import de.feig.FePortDriverException;
@@ -18,10 +17,8 @@ import de.feig.FedmIscReaderConst;
 import de.feig.FedmIscReaderID;
 import de.feig.FedmIscReaderInfo;
 import de.feig.FedmIscRssiItem;
-import de.opentiming.feigws.connector.FedmConnect;
-import de.opentiming.feigws.helper.LogWriter;
-import de.opentiming.feigws.service.SetTime;
-import de.opentiming.feigws.sound.SoundPlayer;
+import de.opentiming.feigWS.help.FileOutput;
+
 
 /**
  *
@@ -33,25 +30,31 @@ import de.opentiming.feigws.sound.SoundPlayer;
  * - Wenn der Reader nicht verbunden werden konnte wird dies alle 5 sec. erneut versucht
  * 
  */
+
 public class BrmReadThread implements Runnable {
 
-	private String filename;
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
+	private FileOutput fo;
 	private boolean firstConnect;
-	private String soundfile;
+	private FedmConnect con;
+	private int sleepTime;
+	private String host;
+	private FedmIscReader fedm;
+	private int sets = 255;
+	private boolean running;
 
-	public BrmReadThread() {
+	public BrmReadThread(FedmConnect con, String outputDir) {
 		firstConnect = true;
+		this.con = con;
+		fedm = con.getFedmIscReader();
+		fo = new FileOutput(outputDir);
+		fo.setHost(con.getHost());
+
 	}
 
 	public synchronized void run() {
 		try {
-
-			filename = "output/Aktuell_" + host.replaceAll("\\.", "_") + ".out";
-
-			FedmConnect con = new FedmConnect();
-			con.setFedmIscReader(fedm);
-			con.setHost(host);
-
+			
 			while (isRunning()) {
 
 				con.fedmOpenConnection();
@@ -64,8 +67,7 @@ public class BrmReadThread implements Runnable {
 					}
 					
 					fedm.setTableSize(FedmIscReaderConst.BRM_TABLE, 256);
-					readBuffer(this.fedm, this.sets);
-					//con.fedmCloseConnection();
+					readBuffer();
 
 				} else {
 					firstConnect = true;
@@ -89,7 +91,7 @@ public class BrmReadThread implements Runnable {
 	 * @param fedm
 	 * @param sets
 	 */
-	private void readBuffer(FedmIscReader fedm, int sets) {
+	private void readBuffer() {
 
 		if (fedm == null) {
 			return;
@@ -112,17 +114,12 @@ public class BrmReadThread implements Runnable {
 			}
 
 			FedmBrmTableItem[] brmItems = null;
-			LogWriter.write(host, "* " + fedm.getTableLength(FedmIscReaderConst.BRM_TABLE) + " *********************\n");
+			log.info("{} Anzahl Tags: {}", con.getHost(), fedm.getTableLength(FedmIscReaderConst.BRM_TABLE));
 
 			if (fedm.getTableLength(FedmIscReaderConst.BRM_TABLE) > 0)
 				brmItems = (FedmBrmTableItem[]) fedm.getTable(FedmIscReaderConst.BRM_TABLE);
 
 			if (brmItems != null) {
-
-				/*
-				 * Spielt einen Ton ab, wenn neue Tag im Buffer
-				 */
-				new SoundPlayer(soundfile);
 				
 				String[] serialNumberHex = new String[brmItems.length];
 				// String[] serialNumber = new String[brmItems.length];
@@ -183,7 +180,7 @@ public class BrmReadThread implements Runnable {
 
 						switch (readerInfo.readerType) {
 						case de.feig.FedmIscReaderConst.TYPE_ISCLRU1002:
-							date[i] = SetTime.getComputerDate();
+							date[i] = ReaderTime.getComputerDate();
 							break;
 						default:
 							String year = Integer.toString(brmItems[i].getReaderTime().getYear());
@@ -217,11 +214,10 @@ public class BrmReadThread implements Runnable {
 					}
 
 					csvFileContent = csvFileContent + "\n" + Integer.toString(serialNumber[i]) + ";" + date[i] + ";"
-							+ time[i].substring(0, 8) + ";" + time[i].substring(9, 12) + ";" + host + ";" + antNr[i]
+							+ time[i].substring(0, 8) + ";" + time[i].substring(9, 12) + ";" + con.getHost() + ";" + antNr[i]
 							+ ";" + rssi[i] + ";" + uniqeNumber[i] + ";" + cTime;
 
-					LogWriter.write(host,
-							serialNumberHex[i] + " - " + antNr[i] + " - " + rssi[i] + " - " + serialNumber[i] + "\n");
+					log.info("{} " + serialNumberHex[i] + " - " + antNr[i] + " - " + rssi[i] + " - " + serialNumber[i], con.getHost());
 
 					/*
 					 * //Senden der Daten an die serielle Schnittstelle
@@ -236,12 +232,7 @@ public class BrmReadThread implements Runnable {
 				}
 
 				try {
-					Path file = Paths.get(filename);
-					if (Files.notExists(file)) {
-						Files.write(file, "".getBytes());
-					}
-
-					Files.write(file, csvFileContent.getBytes(), StandardOpenOption.APPEND);
+					fo.writeToFile(csvFileContent);
 					if ((fedm.getLastError() >= 0)) {
 						clearBuffer(this.fedm);
 					}
@@ -251,7 +242,8 @@ public class BrmReadThread implements Runnable {
 			}
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
+			log.error("{} reader connection brocken",  con.getHost());
 		}
 	}
 
@@ -358,10 +350,6 @@ public class BrmReadThread implements Runnable {
 
 	}
 
-	public void setFedmIscReader(FedmIscReader fedm) {
-		this.fedm = fedm;
-	}
-
 	public int getSets() {
 		return sets;
 	}
@@ -378,21 +366,8 @@ public class BrmReadThread implements Runnable {
 		this.running = running;
 	}
 
-	public void setHost(String host) {
-		this.host = host;
-	}
-
 	public void setSleepTime(int sleepTime) {
 		this.sleepTime = sleepTime;
 	}
 	
-	public void setSoundFile(String soundfile) {
-		this.soundfile = soundfile;
-	}
-
-	private int sleepTime;
-	private String host;
-	private FedmIscReader fedm;
-	private int sets = 255;
-	private boolean running;
 }

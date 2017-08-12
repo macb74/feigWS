@@ -1,5 +1,8 @@
 package de.opentiming.feigws.server;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.xml.ws.Endpoint;
 
 import de.feig.FedmException;
@@ -19,30 +22,32 @@ public class FeigWSServer {
 		String readers = props.getPropertie("reader.ip");
 		String[] reader = readers.split(" ");
 		
+		Map<String, FedmIscReader> readerConnectors = new HashMap<String, FedmIscReader>();
+		
 		for( String r : reader) {
-			startServer(r);
+			readerConnectors.put(r, startReaderThread(r));
 		}
+		
+		startServer(readerConnectors);
 	}
 
 
-	private static void startServer(String host) {
+	private static void startServer(Map<String, FedmIscReader> readerConnectors) {
+		Endpoint.publish( "http://" + props.getPropertie("webserver.host") + ":" + props.getPropertie("webserver.port") + "/FeigWS", 
+				new FeigWSService(readerConnectors) );
 
-		WebServer webServer = new WebServer();
-		webServer.setHostname(props.getPropertie("webserver.host"));
-		webServer.setPort(getPort(host));
-		webServer.setHttpContext("/FeigWS");
-		com.sun.net.httpserver.HttpContext httpContext = webServer.createWebServer();
-	
+	}
+		
+	private static FedmIscReader startReaderThread(String host) {
+
+		FedmIscReader fedm = null;
+		
 		ResetReaderFile rrf = new ResetReaderFile();
 		rrf.resetReaderFile(host);
 
 		try {
 			
-			FedmIscReader fedm = new de.feig.FedmIscReader();
-			FeigWSService fws = new FeigWSService();
-			fws.setFedmIscReader(fedm);
-			fws.setHost(host);
-			
+			fedm = new de.feig.FedmIscReader();
 			BrmReadThread brmReadThread = new BrmReadThread();
 		    brmReadThread.setFedmIscReader(fedm);
 		    brmReadThread.setHost(host);
@@ -53,9 +58,6 @@ public class FeigWSServer {
 		    brmReadThread.setRunning(true);
 		    runner.start();
 			
-			Endpoint endpoint = Endpoint.create(fws);
-			endpoint.publish(httpContext);
-			
 		} catch (FedmException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -63,11 +65,8 @@ public class FeigWSServer {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
 		
-	private static int getPort(String host) {
-		String[] port = host.split("\\.");
-		return Integer.parseInt(port[3]) * 10;
+		return fedm;
 	}
 
 	
