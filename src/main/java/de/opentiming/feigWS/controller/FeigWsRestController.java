@@ -23,6 +23,7 @@ import de.opentiming.feigWS.reader.ReaderMode;
 import de.opentiming.feigWS.reader.ReaderPower;
 import de.opentiming.feigWS.reader.ReaderResultFiles;
 import de.opentiming.feigWS.reader.ReaderValidTime;
+import de.opentiming.feigWS.reader.ReaderWriteTag;
 
 @RestController
 @RequestMapping(value="/api")
@@ -86,6 +87,13 @@ public class FeigWsRestController {
     	FileOutput fo = new FileOutput(env.getProperty("file.output"));
     	fo.setHost(reader);
     	return fo.resetReaderFile();
+    }
+    
+    @RequestMapping(value="/{reader}/write/{value}", method=RequestMethod.GET)
+    public Map<String, String> writeTag(@PathVariable String reader, @PathVariable int value) {
+    	FedmConnect con = connections.get(reader);
+		ReaderWriteTag w = new ReaderWriteTag(con);
+		return w.writeTag(value);
     }
 
     @RequestMapping(value="/readers", method=RequestMethod.GET)
