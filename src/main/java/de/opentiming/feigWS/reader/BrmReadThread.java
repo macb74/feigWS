@@ -38,7 +38,6 @@ public class BrmReadThread implements Runnable {
 	private boolean firstConnect;
 	private FedmConnect con;
 	private int sleepTime;
-	private String host;
 	private FedmIscReader fedm;
 	private int sets = 255;
 	private boolean running;
@@ -49,12 +48,10 @@ public class BrmReadThread implements Runnable {
 		fedm = con.getFedmIscReader();
 		fo = new FileOutput(outputDir);
 		fo.setHost(con.getHost());
-
 	}
 
 	public synchronized void run() {
-		try {
-			
+		try {			
 			while (isRunning()) {
 
 				con.fedmOpenConnection();
@@ -363,6 +360,8 @@ public class BrmReadThread implements Runnable {
 	}
 
 	public void setRunning(boolean running) {
+	    if(running) { log.info("{} start brmReadThread", con.getHost()); }
+	    if(!running) { log.info("{} kill brmReadThread", con.getHost()); }
 		this.running = running;
 	}
 

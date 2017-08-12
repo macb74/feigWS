@@ -6,8 +6,6 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import de.opentiming.feigWS.reader.ReaderAntenna;
 import de.opentiming.feigWS.help.FileOutput;
+import de.opentiming.feigWS.help.StartReaderThread;
+import de.opentiming.feigWS.reader.BrmReadThread;
 import de.opentiming.feigWS.reader.FedmConnect;
 import de.opentiming.feigWS.reader.ReaderInfo;
 import de.opentiming.feigWS.reader.ReaderMode;
@@ -29,23 +29,31 @@ import de.opentiming.feigWS.reader.ReaderWriteTag;
 @RequestMapping(value="/api")
 public class FeigWsRestController {
 
-	private final Logger log = LoggerFactory.getLogger(this.getClass());
-	
 	@Autowired
 	private Environment env;
 	
 	@Resource(name = "connections")
 	private Map<String, FedmConnect> connections;
 	
+	@Resource(name = "brmthreads")
+	private Map<String, BrmReadThread> brmthreads;
+		
     @RequestMapping(value="/{reader}/info", method=RequestMethod.GET)
     public Map<String, Object> getReaderInfo(@PathVariable String reader) {
     	FedmConnect con = connections.get(reader);
     	ReaderInfo ri = new ReaderInfo(con);
-    	Map<String, Object> readerConfig = ri.getConfig();
+    	Map<String, Object> config = ri.getConfig();
     	
     	ReaderResultFiles rf = new ReaderResultFiles(env.getProperty("file.output"));
-    	readerConfig.put("files", rf.getResultFiles(reader));
-    	return readerConfig;
+    	config.put("files", rf.getResultFiles(reader));
+    	
+    	if(config.get("mode") != null && config.get("mode").equals("ISO")) {
+    		if(brmthreads.get(reader) != null) {
+    			brmthreads.get(reader).setRunning(false);
+    			brmthreads.put(reader, null);
+    		}
+    	}
+    	return config;
     }
 
     @RequestMapping(value="/{reader}/ant/{value}", method=RequestMethod.GET)
@@ -58,8 +66,28 @@ public class FeigWsRestController {
     @RequestMapping(value="/{reader}/mode/{value}", method=RequestMethod.GET)
     public boolean setMode(@PathVariable String reader, @PathVariable String value) {
     	FedmConnect con = connections.get(reader);
+    	
     	ReaderMode m = new ReaderMode(con);
-    	return m.setMode(value);
+    	m.setMode(value);
+    	
+        ReaderInfo ri = new ReaderInfo(con);
+        Map<String, Object> config = ri.getConfig();
+    	
+    	if(config.get("mode") != null && config.get("mode").equals("BRM")) {
+    		if(brmthreads.get(reader) == null) {
+        		StartReaderThread srt = new StartReaderThread(con, env.getProperty("file.output"), env.getProperty("reader.sleep"));
+    		    brmthreads.put(reader, srt.getBrmReadThread());
+    		}
+    	}
+
+    	if(config.get("mode") != null && config.get("mode").equals("ISO")) {
+    		if(brmthreads.get(reader) != null) {
+	    		brmthreads.get(reader).setRunning(false);
+			    brmthreads.put(reader, null);
+    		}
+    	}
+    	
+    	return true;
     }
     
     @RequestMapping(value="/{reader}/power/{value}", method=RequestMethod.GET)
