@@ -7,16 +7,19 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+
+import de.opentiming.feigWS.reader.FedmConnect;
 
 @Controller
 public class FeigWsHtmlController {
 	
-//    @RequestMapping("/app")
-//    public String greeting(@RequestParam(value="name", required=false, defaultValue="World") String name, Model model) {
-//    	test.put("a", test.get("a") + "a");
-//    	model.addAttribute("name", test.get("a"));
-//        return "index";
-//    }
+	@Resource(name = "connections")
+	private Map<String, FedmConnect> connections;
+	
+    @RequestMapping("/app")
+    public String greeting(Model model) {
+    	model.addAttribute("readers", connections.keySet());
+        return "index";
+    }
 
 }

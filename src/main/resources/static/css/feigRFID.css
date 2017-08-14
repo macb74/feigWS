@@ -1,0 +1,186 @@
+/*
+ * Base structure
+ */
+
+/* Move down content because we have a fixed navbar that is 50px tall */
+body {
+  padding-top: 50px;
+}
+
+
+/*
+ * Global add-ons
+ */
+
+.sub-header {
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+/*
+ * Top navigation
+ * Hide default border to remove 1px line.
+ */
+.navbar-fixed-top {
+  border: 0;
+}
+
+/*
+ * Sidebar
+ */
+
+/* Hide for mobile, show later */
+.sidebar {
+  display: none;
+}
+@media (min-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 51px;
+    bottom: 0;
+    left: 0;
+    z-index: 1000;
+    display: block;
+    padding: 20px;
+    overflow-x: hidden;
+    overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+    background-color: #f5f5f5;
+    border-right: 1px solid #eee;
+	width: 200px;
+  }
+}
+
+/* Sidebar navigation */
+.nav-sidebar {
+  margin-right: -21px; /* 20px padding + 1px border */
+  margin-bottom: 20px;
+  margin-left: -20px;
+}
+.nav-sidebar > li > a {
+  padding-right: 20px;
+  padding-left: 20px;
+}
+.nav-sidebar > .active > a,
+.nav-sidebar > .active > a:hover,
+.nav-sidebar > .active > a:focus {
+  color: #fff;
+  background-color: #428bca;
+}
+
+/*
+ * Main content
+ */
+
+.main {
+  padding: 20px;
+  /* margin-left: 200px; */
+}
+
+/*
+@media (min-width: 768px) {
+  .main {
+    padding-right: 40px;
+    padding-left: 40px;
+  }
+}
+*/
+table {
+  font-size: 14px;
+}
+
+.main .page-header {
+  margin-top: 0;
+}
+
+.navbar-brand-orange {
+  color: #E86F3A;
+}
+
+.table-responsive {
+  overflow: visible;
+}
+
+.dropdown-menu {
+  min-width: 0px;
+}
+
+.btn-small-border {
+  padding: 4px 8px;
+}
+
+.btn-w90 {
+  width: 90px;
+}
+
+.content-table {
+  padding-top: 20px;
+}
+
+.testsystem {
+ color: red;
+ font-size: 16px;
+ padding-right: 100px;
+ padding-top: 15px;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.btn-new-top {
+  margin-top: -30px;
+  margin-bottom: 10px;
+}
+
+.table-vcenter td {
+  padding: 4px !important;
+  vertical-align: middle !important;
+}
+
+.radio-inline, .radio, .checkbox-inline {
+  margin-left: 20px;
+}
+
+.input-very-small {
+  margin-top: -2px;
+  height: 25px;
+}
+
+.clearfix {
+  clear: left;
+  height: 0px;
+}
+
+
+.btn-file {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-file input[type=file] {
+  position: absolute;
+  top: 0;
+  right: 0;
+  min-width: 100%;
+  min-height: 100%;
+  font-size: 100px;
+  text-align: right;
+  filter: alpha(opacity=0);
+  opacity: 0;
+  background: red;
+  cursor: inherit;
+  display: block;
+}
+
+.input-readonly {
+  background-color: white !important;
+  cursor: text !important;
+}
+
+.bg-info {
+  padding: 15px;
+}
+
+.modal-button {
+  padding: 0px 0px 15px 0px;
+}
