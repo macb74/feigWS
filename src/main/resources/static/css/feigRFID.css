@@ -92,6 +92,15 @@ table {
   margin-top: 0;
 }
 
+.tab-content {
+  margin-top: 10px;
+  margin-left: 10px;
+}
+
+.alert {
+  margin-top: 10px;
+}
+
 .navbar-brand-orange {
   color: #E86F3A;
 }

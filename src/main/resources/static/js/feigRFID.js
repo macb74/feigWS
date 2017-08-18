@@ -1,6 +1,18 @@
 /*
  * 
  */
+var t;
+var isRunning = false;
+
+function handleTabButtons(r) {
+	clearTimeout(t);
+	if($( '#reader-' + r + '-live').css('display') == 'block') {
+		handleReaderResults(r , 'Aktuell_' + r + '.out', 'showlive'); 
+		t = setTimeout(function() { 
+			handleTabButtons(r);
+			}, 5000);
+	}
+}
 
 function getReaderData(r, a) {
 	var action = 'info';
@@ -36,28 +48,33 @@ function getReaderData(r, a) {
 		var x = $.getJSON( "/api/" + readerIp + "/" + action);
 	}
 
-	var jqxhr = $.getJSON( "/api/" + readerIp + "/info");
-	jqxhr.done(function( data ) {
-		if(data != "") {
-			$.each( data, function( key, val ) {
-				if(key == "mode") { 
-					error = false;
-				}
-				
-				if(key == "files") {
-					setTableData(r, val, readerIp);
-				}
-				
-				$('#' + key + '-' + r).val(val);
-			});
-		}
-
-		if(error) {
-			$('#faultstring-' + r).html('no reader connection');
-			$('#faultstring-' + r).removeClass('hidden')
-		}
+	if(!isRunning) {
+		isRunning = true;
 		
-	});
+		var jqxhr = $.getJSON( "/api/" + readerIp + "/info");
+		jqxhr.done(function( data ) {
+			if(data != "") {
+				$.each( data, function( key, val ) {
+					if(key == "mode") { 
+						error = false;
+					}
+					
+					if(key == "files") {
+						setTableData(r, val, readerIp);
+					}
+					
+					$('#' + key + '-' + r).val(val);
+				});
+			}
+	
+			if(error) {
+				$('#faultstring-' + r).html('no reader connection');
+				$('#faultstring-' + r).removeClass('hidden')
+			}
+			
+		});
+		isRunning = false;
+	}
 }
 
 function setTableData(r, val, readerIp) {
@@ -83,17 +100,66 @@ function setTableData(r, val, readerIp) {
 
 function handleReaderResults(r, file, mode) {
 	if(mode == "show") {
-		modal = "#modal";
-		method = "showReaderResults";
+		target = "#modal-body";
+		$( '#modal' ).modal();
+	}
+	
+	if(mode == "showlive") {
+		target = "#showlive-" + r;
 	}
 
-	$( modal ).modal();
-	var jqxhr = $.getJSON( "/api/" + r + "/file/" + file);
-
-	jqxhr.done(function( data ) {
-		$( modal + '-body' ).html( data );
-	});
+	if(!isRunning) {
+		isRunning = true;
+		
+		var jqxhr = $.getJSON( "/api/" + r + "/file/" + file);
+	
+		//$( target ).html( '' );
+		jqxhr.done(function( data ) {
+			$( target ).html( showReaderResults(data) );
+		});
+		
+		isRunning = false;
+	}
 }
+
+function showReaderResults(data) {
+
+	var html = '';
+	html = html + '<div class="table-responsive">' +
+		'<table class="table table-striped table-vcenter">' +
+		'<thead>' +
+			'<tr>' +
+				'<th>Startnummer</th>' +
+				'<th>Datum</th>' +
+				'<th>Uhrzeit</th>' +
+				'<th>Milli</th>' +
+				'<th>Reader</th>' +
+				'<th>Antenne</th>' +
+				'<th>RSSI</th>' +
+				'<th>UID</th>' +
+				'<th>Lesezeit</th>' +
+			'</tr>' +
+		'</thead>' +
+		'<tbody>';
+	
+
+	data.reverse(); 
+	$.each(data, function(key, val) {
+		var fields = val.split(";");
+		html = html + '<tr>';
+		$.each(fields, function(key, val) {
+			html = html + '<td>' + val + '</td>';
+		});
+		html = html + '</tr>';
+	});
+
+		'</tbody>' +
+	'</table>' +
+	'</div>';
+	
+	return html;
+}
+
 
 function clearModal() {
 	var data = '<span class="text-muted">loading...</span>';
