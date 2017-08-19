@@ -16,36 +16,26 @@
     <link th:href="@{/css/feigRFID.css}" rel="stylesheet" />
 	<link th:href="@{/css/font-awesome.css}" rel="stylesheet" />
 	
-	<script type="text/javascript" th:src="@{/js/jquery-2.1.4.js}"></script>
-    <script type="text/javascript" th:src="@{/bootstrap/js/bootstrap.min.js}"></script>
-    <script type="text/javascript" th:src="@{/js/feigRFID.js}"></script>
-    
 </head>
 <body>
 
-	<nav class="navbar navbar-inverse navbar-fixed-top">
-		<div class="container-fluid">
-			<div class="navbar-header">
-				<button class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-					<span class="sr-only">Toggle navigation</span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-				</button>
-				<a class="navbar-brand" href="#"><span class="navbar-brand-orange">feig</span>RFID</a>
-			</div>
-			<div id="navbar" class="navbar-collapse collapse">	
-			</div>
-		</div>
-	</nav>
+	<nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark">
+  		<a class="navbar-brand" href="#"><span class="navbar-brand-orange">feig</span>RFID</a>
+  		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+  			<span class="navbar-toggler-icon"></span>
+  		</button>
+  		
+  		<div class="collapse navbar-collapse" id="navbarSupportedContent">
+  		</div>
+  	</nav>
 	
 	<div class="main">
 
 		 <!-- <h3 class="text-center">Reader Config</h3>  -->
 		 <!-- Reader Nav tabs -->
 		 <ul class="nav nav-tabs" role="tablist">
-		   <li th:each="reader, r : ${readers}" th:with="readerName=${#strings.replace(reader,'.','_')}" role="presentation" th:class="(${reader} == ${readers[0]})? 'active' : null">
-		   	<a th:href="@{#reader-{reader}(reader=${readerName})}" th:id="'tab-' + ${readerName} + '-main'" aria-controls="home" role="tab" data-toggle="tab">
+		   <li class="nav-item" th:each="reader, r : ${readers}" th:with="readerName=${#strings.replace(reader,'.','_')}" role="presentation">
+		   	<a th:class="(${reader} == ${readers[0]})? 'active nav-link' : 'nav-link'" th:href="@{#reader-{reader}(reader=${readerName})}" th:id="'tab-' + ${readerName} + '-main'" aria-controls="home" role="tab" data-toggle="tab">
 		   		<span th:text="${reader}" />
 		   	</a>
 		   </li>
@@ -58,40 +48,27 @@
 			
 				<!-- Config Nav tabs -->
 				<ul class="nav nav-tabs" role="tablist" th:id="'configtabs-' + ${readerName}">
-					<li  class="active">
-				    	<a th:href="@{#reader-{reader}-config(reader=${readerName})}" th:id="'tab-' + ${readerName} + '-config'" aria-controls="home" role="tab" data-toggle="tab">CONFIG</a>
+					<li class="nav-item">
+				    	<a class="nav-link active" th:href="@{#reader-{reader}-config(reader=${readerName})}" th:id="'tab-' + ${readerName} + '-config'" aria-controls="home" role="tab" data-toggle="tab">CONFIG</a>
 				  	</li>
-				  	<li  class="">
-				    	<a th:href="@{#reader-{reader}-write(reader=${readerName})}" th:id="'tab-' + ${readerName} + '-write'" aria-controls="home" role="tab" data-toggle="tab">WRITE</a>
+				  	<li class="nav-item">
+				    	<a class="nav-link" th:href="@{#reader-{reader}-write(reader=${readerName})}" th:id="'tab-' + ${readerName} + '-write'" aria-controls="home" role="tab" data-toggle="tab">WRITE</a>
 				  	</li>
-				  	<li  class="">
-				    	<a th:href="@{#reader-{reader}-live(reader=${readerName})}" th:id="'tab-' + ${readerName} + '-live'" aria-controls="home" role="tab" data-toggle="tab">LIVE</a>
+				  	<li class="nav-item">
+				    	<a class="nav-link" th:href="@{#reader-{reader}-live(reader=${readerName})}" th:id="'tab-' + ${readerName} + '-live'" aria-controls="home" role="tab" data-toggle="tab">LIVE</a>
 				  	</li>
 				</ul>
-			
-				<script th:inline="javascript">
-					/*<![CDATA[*/
-					$(document).ready(function(){					    
-					    $( $('[id^=tab-' + [[${readerName}]]) ).on('shown.bs.tab', function(e){
-					    	handleTabButtons([[${readerName}]]);
-					    });
-					    getReaderData([[${readerName}]], 'info');					
-					});
-					
-					/*]]>*/
-				</script>
-			
+						
 				<!-- Config Tab panes -->
 				<div class="tab-content">
 					<div role="tabpanel" class="active tab-pane" th:id="@{reader-{reader}-config(reader=${readerName})}">
-			
-					   	<div class="alert alert-danger hidden col-sm-offset-3 col-sm-6" th:id="@{faultstring-{reader}(reader=${readerName})}" role="alert"></div>
-					
+						<div class="row justify-content-md-center">
+					   		<div class="alert alert-danger hidden col-sm-6" th:id="@{faultstring-{reader}(reader=${readerName})}" role="alert"></div>
+						</div>
 						<form role="form" class="form-horizontal" id="editReader" name="editReader">
-							<div class="form-group"></div>
 				
-							<div class="form-group">
-								<label for="power" class="col-sm-4 control-label">Power:</label>
+							<div class="form-group row justify-content-md-center">
+								<label for="power" class="text-right col-sm-4 col-form-label">Power:</label>
 								<div class="col-sm-3">
 									<input name="power" maxlength="200" type="text" class="form-control" th:id="@{power-{reader}(reader=${readerName})}" placeholder="Power" value="" />
 								</div>
@@ -99,9 +76,9 @@
 									<a class="btn btn-success btn-w90" href="#" th:onclick="'getReaderData(\'' + ${readerName} + '\',3); return false;'" role="button">SET</a>
 								</div>	
 							</div>
-						
-							<div class="form-group">
-								<label for="trValidTime" class="col-sm-4 control-label">Transponder Valid Time:</label>
+				
+							<div class="form-group row justify-content-md-center">
+								<label for="trValidTime" class="text-right col-sm-4 col-form-label">Transponder Valid Time:</label>
 								<div class="col-sm-3">
 									<input name="transponderValidTime" maxlength="200" type="text" class="form-control" th:id="@{transponderValidTime-{reader}(reader=${readerName})}" placeholder="Transponder Valid Time" value="" />
 								</div>
@@ -110,8 +87,8 @@
 								</div>
 							</div>
 						 
-						 	<div class="form-group">
-								<label for="mode" class="col-sm-4 control-label">Mode:</label>
+						 	<div class="form-group row justify-content-md-center">
+								<label for="mode" class="text-right col-sm-4 col-form-label">Mode:</label>
 								<div class="col-sm-3">
 									<input name="mode" maxlength="200" type="text" class="form-control" th:id="@{mode-{reader}(reader=${readerName})}" placeholder="Mode" value="" readonly="true" />
 								</div>
@@ -120,8 +97,8 @@
 								</div>	
 							</div>
 							
-							<div class="form-group">
-								<label for="time" class="col-sm-4 control-label">Time:</label>
+							<div class="form-group row justify-content-md-center">
+								<label for="time" class="text-right col-sm-4 col-form-label">Time:</label>
 								<div class="col-sm-3">
 									<input name="readerTime" maxlength="200" type="text" class="form-control" th:id="@{readerTime-{reader}(reader=${readerName})}" placeholder="Time" value="" />
 								</div>
@@ -130,8 +107,8 @@
 								</div>	
 							</div>
 						
-							<div class="form-group">
-								<label for="antenna" class="col-sm-4 control-label">Antennen:</label>
+							<div class="form-group row justify-content-md-center">
+								<label for="antenna" class="text-right col-sm-4 col-form-label">Antennen:</label>
 								<div class="col-sm-3">
 									<input name="antenna" maxlength="200" type="text" class="form-control" th:id="@{antenna-{reader}(reader=${readerName})}" placeholder="Antennen" value="" />
 								</div>
@@ -140,8 +117,8 @@
 								</div>		
 							</div>
 							
-							<div class="form-group">
-								<div class="col-sm-offset-4 col-sm-3">
+							<div class="form-group row justify-content-md-center">
+								<div class="text-right col-sm-7">
 									<a class="btn btn-success" href="#" th:onclick="'getReaderData(\'' + ${readerName} + '\',-1); return false;'" role="button">UPDATE</a>
 								</div>
 								<div class="col-sm-4">
@@ -149,20 +126,22 @@
 								</div>
 							</div>		
 						</form>
-					
-						<div class="table-responsive col-sm-offset-2 col-sm-7">
-							<table class="table table-striped table-vcenter">
-								<thead>
-									<tr>
-										<th>Datei</th>
-										<th>Zeilen</th>
-										<th>Aktion</th>
-									</tr>
-								</thead>
-								<tbody th:id="'tbody-' + ${readerName}">
-									
-								</tbody>
-							</table>
+						
+						<div class="row justify-content-md-center">
+							<div class="table-responsive col-sm-7">
+								<table class="table table-striped table-vcenter">
+									<thead>
+										<tr>
+											<th>Datei</th>
+											<th>Zeilen</th>
+											<th>Aktion</th>
+										</tr>
+									</thead>
+									<tbody th:id="'tbody-' + ${readerName}">
+										
+									</tbody>
+								</table>
+							</div>
 						</div>
 					
 					</div>
@@ -197,6 +176,22 @@
 	   		</div>
 		</div>
 	</div>
-				
+	
+	<script type="text/javascript" th:src="@{/js/jquery-3.2.1.min.js}"></script>
+	<script type="text/javascript" th:src="@{/js/popper.min.js}"></script>
+    <script type="text/javascript" th:src="@{/bootstrap/js/bootstrap.min.js}"></script>
+    <script type="text/javascript" th:src="@{/js/feigRFID.js}"></script>
+    
+    <script th:each="reader, r : ${readers}" th:with="readerName=${#strings.replace(reader,'.','_')}" th:inline="javascript">
+		/*<![CDATA[*/
+		$(document).ready(function(){					    
+		    $( $('[id^=tab-' + [[${readerName}]]) ).on('shown.bs.tab', function(e){
+		    	handleTabButtons([[${readerName}]]);
+		    });
+		    getReaderData([[${readerName}]], 'info');
+		});
+		/*]]>*/
+	</script>
+    
 </body>
 </html>
