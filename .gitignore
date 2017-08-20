@@ -2,7 +2,8 @@ bin/
 target/
 output/
 log/
-!.mvn/wrapper/maven-wrapper.jar
+lib/
+maven-repository/
 
 ### STS ###
 .apt_generated
