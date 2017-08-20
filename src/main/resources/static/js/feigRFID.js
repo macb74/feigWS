@@ -43,7 +43,7 @@ function getReaderData(r, a) {
 			break;
 	}
 	
-	$('#faultstring-'+r).addClass('hidden');
+	$('#faultstring-' + r).css("display","none");
 	
 	if(action != 'info') { 
 		var x = $.getJSON( "/api/" + readerIp + "/" + action);
@@ -70,7 +70,7 @@ function getReaderData(r, a) {
 	
 			if(error) {
 				$('#faultstring-' + r).html('no reader connection');
-				$('#faultstring-' + r).removeClass('hidden')
+				$('#faultstring-' + r).css("display","block");
 			}
 			
 		});
@@ -145,6 +145,9 @@ function showReaderResults(data) {
 	
 
 	data.reverse(); 
+	
+	var max = 100
+	var count = 0;
 	$.each(data, function(key, val) {
 		var fields = val.split(";");
 		html = html + '<tr>';
@@ -152,6 +155,8 @@ function showReaderResults(data) {
 			html = html + '<td>' + val + '</td>';
 		});
 		html = html + '</tr>';
+		count++;
+		if(count > max) { return false; }
 	});
 
 		'</tbody>' +
