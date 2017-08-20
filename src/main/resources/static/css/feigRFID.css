@@ -2,11 +2,15 @@
  * Base structure
  */
 
+html {
+  font-size: 14px;
+}
+
+
 /* Move down content because we have a fixed navbar that is 50px tall */
 body {
   padding-top: 50px;
 }
-
 
 /*
  * Global add-ons
@@ -84,9 +88,6 @@ body {
   }
 }
 */
-table {
-  font-size: 14px;
-}
 
 .main .page-header {
   margin-top: 0;
