@@ -35,6 +35,7 @@ public class ReaderWriteTag {
 		
 		result.put("message","");
 		result.put("success",Boolean.toString(success));
+		result.put("stnr", "0");
 		
 		try {
 
@@ -80,6 +81,7 @@ public class ReaderWriteTag {
 					
 					if (checkAllSNr(newSnr)) {
 						success = true;
+						result.put("stnr", Integer.toString(intStNr));
 					} else {
 						log.info("{} ACHTUNG: Neue Nummer ist FALSCH!!!", con.getHost());
 						result.put("message", "ACHTUNG: Neue Nummer ist FALSCH!!!");

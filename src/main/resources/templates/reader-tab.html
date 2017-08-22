@@ -1,0 +1,26 @@
+   <div th:each="reader : ${readers}" role="tabpanel" th:with="readerName=${#strings.replace(reader,'.','_')}" th:class="(${reader} == ${readers[0]})? 'active tab-pane' : 'tab-pane'" th:id="@{reader-{reader}(reader=${readerName})}">
+  
+    <!-- Config Nav tabs -->
+    <ul class="nav nav-tabs" role="tablist" th:id="'configtabs-' + ${readerName}">
+     <li class="nav-item">
+         <a class="nav-link active" th:href="@{#reader-{reader}-config(reader=${readerName})}" th:id="'tab-' + ${readerName} + '-config'" aria-controls="home" role="tab" data-toggle="tab">CONFIG</a>
+       </li>
+       <li class="nav-item">
+         <a class="nav-link" th:href="@{#reader-{reader}-write(reader=${readerName})}" th:id="'tab-' + ${readerName} + '-write'" aria-controls="home" role="tab" data-toggle="tab">WRITE</a>
+       </li>
+       <li class="nav-item">
+         <a class="nav-link" th:href="@{#reader-{reader}-live(reader=${readerName})}" th:id="'tab-' + ${readerName} + '-live'" aria-controls="home" role="tab" data-toggle="tab">LIVE</a>
+       </li>
+    </ul>
+      
+    <!-- Config Tab panes -->
+    <div class="tab-content">
+
+     <div th:replace="reader-tab-config"></div>
+
+     <div th:replace="reader-tab-write"></div>
+     
+     <div th:replace="reader-tab-list"></div>
+          
+    </div>
+   </div>

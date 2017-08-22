@@ -194,3 +194,8 @@ body {
 .modal-button {
   padding: 0px 0px 15px 0px;
 }
+
+.newnr {
+  font-size: 10rem;
+  text-align: center;
+}

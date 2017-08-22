@@ -1,0 +1,85 @@
+<div role="tabpanel" class="active tab-pane" th:id="@{reader-{reader}-config(reader=${readerName})}">
+    <div class="row justify-content-md-center">
+       <div class="alert alert-danger col-sm-6" style="display: none;" th:id="@{faultstring-{reader}(reader=${readerName})}" role="alert"></div>
+    </div>
+
+    <form role="form" class="form-horizontal" id="editReader" name="editReader">
+       <div class="form-group row justify-content-md-center">
+           <label for="power" class="text-right col-sm-2 ml-auto col-form-label">Power:</label>
+           <div class="col-sm-3">
+               <input name="power" maxlength="200" type="text" class="form-control" th:id="@{power-{reader}(reader=${readerName})}" placeholder="Power" value="" />
+           </div>
+           <div class="col-sm-1 mr-auto">
+               <a class="btn btn-success btn-w90" href="#" th:onclick="'getReaderData(\'' + ${readerName} + '\',3); return false;'" role="button">SET</a>
+           </div>
+       </div>
+       
+       <div class="form-group row justify-content-md-center">
+           <label for="trValidTime" class="text-right col-sm-2 ml-auto col-form-label">Transponder Valid Time:</label>
+           <div class="col-sm-3">
+               <input name="transponderValidTime" maxlength="200" type="text" class="form-control" th:id="@{transponderValidTime-{reader}(reader=${readerName})}" placeholder="Transponder Valid Time" value="" />
+           </div>
+           <div class="col-sm-1 mr-auto">
+               <a class="btn btn-success btn-w90" href="#" th:onclick="'getReaderData(\'' + ${readerName} + '\',2); return false;'" role="button">SET</a>
+           </div>
+       </div>
+   
+       <div class="form-group row justify-content-md-center">
+           <label for="mode" class="text-right col-sm-2 ml-auto col-form-label">Mode:</label>
+           <div class="col-sm-3">
+               <input name="mode" maxlength="200" type="text" class="form-control" th:id="@{mode-{reader}(reader=${readerName})}" placeholder="Mode" value="" readonly="true" />
+           </div>
+           <div class="col-sm-1 mr-auto">
+               <a class="btn btn-success btn-w90" href="#" th:onclick="'getReaderData(\'' + ${readerName} + '\',5); return false;'" role="button">CHANGE</a>
+           </div>
+       </div>
+   
+       <div class="form-group row justify-content-md-center">
+          <label for="time" class="text-right col-sm-2 ml-auto col-form-label">Time:</label>
+          <div class="col-sm-3">
+              <input name="readerTime" maxlength="200" type="text" class="form-control" th:id="@{readerTime-{reader}(reader=${readerName})}" placeholder="Time" value="" />
+          </div>
+          <div class="col-sm-1 mr-auto">
+              <a class="btn btn-success btn-w90" href="#" th:onclick="'getReaderData(\'' + ${readerName} + '\',1); return false;'" role="button">SET</a>
+          </div>
+       </div>
+   
+       <div class="form-group row justify-content-md-center">
+          <label for="antenna" class="text-right col-sm-2 ml-auto col-form-label">Antennen:</label>
+          <div class="col-sm-3">
+              <input name="antenna" maxlength="200" type="text" class="form-control" th:id="@{antenna-{reader}(reader=${readerName})}" placeholder="Antennen" value="" />
+          </div>
+          <div class="col-sm-1 mr-auto">
+              <a class="btn btn-success btn-w90" href="#" th:onclick="'getReaderData(\'' + ${readerName} + '\',0); return false;'" role="button">SET</a>
+          </div>
+       </div>
+   
+       <div class="form-group row justify-content-md-center">
+           <div class="col-sm-2 ml-auto">
+           </div>
+          <div class="col-sm-3 text-right">
+            <a class="btn btn-success" href="#" th:onclick="'getReaderData(\'' + ${readerName} + '\',-1); return false;'" role="button">UPDATE</a>
+          </div>
+           <div class="col-sm-1 mr-auto">
+               <a class="btn btn-danger" href="#" th:onclick="'getReaderData(\'' + ${readerName} + '\',4); return false;'" role="button">CUT READER FILE</a>
+           </div>
+       </div>
+    </form>
+
+    <div class="row justify-content-md-center">
+        <div class="table-responsive col-sm-7">
+            <table class="table table-striped table-vcenter">
+                <thead>
+                    <tr>
+                       <th>Datei</th>
+                       <th>Zeilen</th>
+                       <th>Aktion</th>
+                    </tr>
+                </thead>
+                <tbody th:id="'tbody-' + ${readerName}">
+                </tbody>
+            </table>
+       </div>
+    </div>
+
+</div>

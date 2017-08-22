@@ -1,0 +1,26 @@
+<div role="tabpanel" class="tab-pane" th:id="@{reader-{reader}-write(reader=${readerName})}">
+    <form role="form" class="form-horizontal" id="writeReader" name="writeReader">
+                
+        <div class="form-group row justify-content-md-center">
+            <div class="col-sm-3">
+                <input name="newNr" maxlength="3" type="text" class="form-control newnr" th:id="@{newnr-{reader}(reader=${readerName})}" placeholder="0" value="" />
+            </div>
+        </div>
+        
+        <div class="form-group row justify-content-md-center">
+           <div class="col-sm-4 text-center">
+               <a class="btn btn-success" th:id="@{writeSingleTag-{reader}(reader=${readerName})}" href="#" role="button">WRITE SINGLE TAG</a>
+               <a class="btn btn-success" th:id="@{writeTag-{reader}(reader=${readerName})}" href="#" role="button">WRITE TAG IN A ROW</a>
+           </div>
+        </div>
+
+        <div class="row justify-content-md-center">
+            <div class="alert alert-danger col-sm-6" style="display: none;" th:id="@{faultstring-write-{reader}(reader=${readerName})}" role="alert"></div>
+        </div>
+
+        <div class="row justify-content-md-center">
+            <div class="alert alert-success col-sm-6" style="display: none;" th:id="@{successstring-write-{reader}(reader=${readerName})}" role="alert"></div>
+        </div>
+
+    </form>
+</div>

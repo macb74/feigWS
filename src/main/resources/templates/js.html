@@ -1,0 +1,21 @@
+<script th:each="reader, r : ${readers}" th:with="readerName=${#strings.replace(reader,'.','_')}" th:inline="javascript">
+    /*<![CDATA[*/
+    $(document).ready(function(){                       
+        $( $('[id^=tab-' + [[${readerName}]]) ).on('shown.bs.tab', function(e){
+            handleTabButtons([[${readerName}]]);
+        });
+
+        $( $('[id^=writeTag-' + [[${readerName}]]) ).click(function(e){
+            e.preventDefault();
+            handleWriteButtons([[${readerName}]], 0);
+        });
+        
+        $( $('[id^=writeSingleTag-' + [[${readerName}]]) ).click(function(e){
+            e.preventDefault();
+            handleWriteButtons([[${readerName}]], 1);
+        });
+        
+        getReaderData([[${readerName}]], 'info');
+    });
+    /*]]>*/
+</script>

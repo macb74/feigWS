@@ -1,7 +1,6 @@
 /*
  * 
  */
-
 var t;
 var isRunning = false;
 
@@ -13,6 +12,50 @@ function handleTabButtons(r) {
 			handleTabButtons(r);
 			}, 5000);
 	}
+}
+
+function handleWriteButtons(r, mode) {
+	var error = true;
+	var readerIp = r.replace(/_/g, '.');
+	
+	$('#faultstring-write-' + r).css("display","none");
+	$('#successstring-write-' + r).css("display","none");
+	$('#faultstring-write-' + r).html('no reader connection');
+	
+	if(!isRunning) {
+		isRunning = true;
+		
+		var jqxhr = $.getJSON( '/api/' + readerIp + '/write/' + $('#newnr-'+r).val() );
+		jqxhr.done(function( data ) {
+			if(data != "") {
+				$.each( data, function( key, val ) {
+					if(key == 'sussess' && val == 'true') { 
+						error = false;
+					}
+					
+					if(key == 'message' && val != '') {
+						$('#faultstring-write-' + r).html( val );
+					}
+				});
+				
+				if(!error) {
+					if(mode == 0) {
+						$('#newnr-' + r).val( parseInt(data['stnr'])+1 );
+						$('#successstring-write-' + r).html('Startnummer: ' + data['stnr'] + ' - Seriennummer: ' + data['newSerialNumber']);
+						$('#successstring-write-' + r).css("display","block");
+					}
+				}
+				
+			}		
+		});
+		isRunning = false;
+
+		if(error) {
+			$('#faultstring-write-' + r).css("display","block");
+		}		
+		
+	}
+
 }
 
 function getReaderData(r, a) {
@@ -46,13 +89,13 @@ function getReaderData(r, a) {
 	$('#faultstring-' + r).css("display","none");
 	
 	if(action != 'info') { 
-		var x = $.getJSON( "/api/" + readerIp + "/" + action);
+		var x = $.getJSON( '/api/' + readerIp + '/' + action);
 	}
 
 	if(!isRunning) {
 		isRunning = true;
 		
-		var jqxhr = $.getJSON( "/api/" + readerIp + "/info");
+		var jqxhr = $.getJSON( '/api/' + readerIp + '/info');
 		jqxhr.done(function( data ) {
 			if(data != "") {
 				$.each( data, function( key, val ) {
