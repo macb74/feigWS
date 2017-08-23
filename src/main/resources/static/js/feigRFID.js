@@ -18,12 +18,20 @@ function handleWriteButtons(r, mode) {
 	var error = true;
 	var readerIp = r.replace(/_/g, '.');
 	
+	$('#faultstring-write-' + r).html('');
 	$('#faultstring-write-' + r).css("display","none");
-	$('#successstring-write-' + r).css("display","none");
-	$('#faultstring-write-' + r).html('no reader connection');
 
+	//$('#successstring-write-' + r).css("display","none");
+
+	if( $('#mode-' + r).val() == 'BRM' ) {
+		$('#faultstring-write-' + r).html('Enable ISO Mode');
+		$('#faultstring-write-' + r).css("display","block");
+		return;
+	}
+	
 	if(!parseInt( $('#newnr-'+r).val() )) {
 		$('#faultstring-write-' + r).html( 'Die Startnummer muss eine Zahl sein' );
+		$('#faultstring-write-' + r).css("display","block");
 		return;
 	}
 	
@@ -39,7 +47,7 @@ function handleWriteButtons(r, mode) {
 		jqxhr.done(function( data ) {
 			if(data != "") {
 				$.each( data, function( key, val ) {
-					if(key == 'sussess' && val == 'true') { 
+					if(key == 'success' && val == 'true') { 
 						error = false;
 					}
 					
@@ -51,24 +59,30 @@ function handleWriteButtons(r, mode) {
 				if(!error) {
 					if(mode == 0) {
 						$('#newnr-' + r).val( parseInt(data['stnr'])+1 );
-						$('#successstring-write-' + r).html('Startnummer: ' + data['stnr'] + ' - Seriennummer: ' + data['newSerialNumber']);
-						$('#successstring-write-' + r).css("display","block");
 					}
+					$('#successstring-write-' + r).html('Startnummer: ' + data['stnr'] + ' - Seriennummer: ' + data['newSerialNumber']);
+					$('#successstring-write-' + r).css("display","block");
 				}
+				
+				if(error) {
+					$('#faultstring-write-' + r).css("display","block");
+				}	
 				
 			}		
 		});
 		isRunning = false;
+	}
 
-		if(error) {
-			$('#faultstring-write-' + r).css("display","block");
-		}		
-		
+	if(mode == 0) {
+		t = setTimeout(function() { 
+			handleWriteButtons(r, 0);
+			}, 3000);
 	}
 
 }
 
 function handleStopWrite(r) {
+	clearTimeout(t);
 	$('#stopWriteTag-' + r).css("display","none");
 	$('#writeTag-' + r).css("display","inline-block");
 }
