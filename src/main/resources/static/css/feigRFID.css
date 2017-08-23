@@ -122,8 +122,13 @@ body {
   width: 90px;
 }
 
+<<<<<<< HEAD
+.btn-w180 {
+  width: 180px;
+=======
 .btn-w160 {
   width: 160px;
+>>>>>>> 999421b192edab9cb61c2a5ada471d36be6a6325
 }
 
 
