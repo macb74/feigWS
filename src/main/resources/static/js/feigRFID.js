@@ -21,6 +21,16 @@ function handleWriteButtons(r, mode) {
 	$('#faultstring-write-' + r).css("display","none");
 	$('#successstring-write-' + r).css("display","none");
 	$('#faultstring-write-' + r).html('no reader connection');
+
+	if(!parseInt( $('#newnr-'+r).val() )) {
+		$('#faultstring-write-' + r).html( 'Die Startnummer muss eine Zahl sein' );
+		return;
+	}
+	
+	if( mode == 0 ) {
+		$('#stopWriteTag-' + r).css("display","inline-block");
+		$('#writeTag-' + r).css("display","none");
+	}
 	
 	if(!isRunning) {
 		isRunning = true;
@@ -57,6 +67,12 @@ function handleWriteButtons(r, mode) {
 	}
 
 }
+
+function handleStopWrite(r) {
+	$('#stopWriteTag-' + r).css("display","none");
+	$('#writeTag-' + r).css("display","inline-block");
+}
+
 
 function getReaderData(r, a) {
 	var action = 'info';

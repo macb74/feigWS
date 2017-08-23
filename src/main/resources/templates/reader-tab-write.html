@@ -10,7 +10,8 @@
         <div class="form-group row justify-content-md-center">
            <div class="col-sm-4 text-center">
                <a class="btn btn-success" th:id="@{writeSingleTag-{reader}(reader=${readerName})}" href="#" role="button">WRITE SINGLE TAG</a>
-               <a class="btn btn-success" th:id="@{writeTag-{reader}(reader=${readerName})}" href="#" role="button">WRITE TAG IN A ROW</a>
+               <a class="btn btn-success btn-w160" th:id="@{writeTag-{reader}(reader=${readerName})}" href="#" role="button">WRITE TAG IN A ROW</a>
+               <a class="btn btn-danger btn-w160" style="display: none;" th:id="@{stopWriteTag-{reader}(reader=${readerName})}" href="#" role="button">STOP</a>
            </div>
         </div>
 

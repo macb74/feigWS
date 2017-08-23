@@ -122,6 +122,11 @@ body {
   width: 90px;
 }
 
+.btn-w160 {
+  width: 160px;
+}
+
+
 .content-table {
   padding-top: 20px;
 }
