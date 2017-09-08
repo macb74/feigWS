@@ -18,7 +18,7 @@ function handleWriteButtons(r, mode) {
 	var error = true;
 	var readerIp = r.replace(/_/g, '.');
 	
-	$('#faultstring-write-' + r).html('');
+	$('#faultstring-write-' + r).html('no reader connected');
 	$('#faultstring-write-' + r).css("display","none");
 
 	//$('#successstring-write-' + r).css("display","none");
@@ -76,7 +76,7 @@ function handleWriteButtons(r, mode) {
 	if(mode == 0) {
 		t = setTimeout(function() { 
 			handleWriteButtons(r, 0);
-			}, 3000);
+			}, $('#ConfigWriteSleepTime').val() * 1000);
 	}
 
 }

@@ -12,10 +12,12 @@
 	<meta http-equiv="Content-Language" content="de" />
 	<meta name="decorator" content="main" />
 		
-    <link th:href="@{/bootstrap/css/bootstrap.min.css}" rel="stylesheet" />
-    <link th:href="@{/css/feigRFID.css}" rel="stylesheet" />
-	<link th:href="@{/css/font-awesome.css}" rel="stylesheet" />
-	
+    <!--  <link rel="stylesheet" type="text/css" href="/webjars/bootstrap/css/bootstrap.min.css"/>  -->
+    <link rel="stylesheet" type="text/css" href="/webjars/font-awesome/css/font-awesome.min.css"></link>
+    <link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.min.css}" />
+    <link rel="stylesheet" th:href="@{/css/feigRFID.css}" />
+ 
+ 
 </head>
 <body>
 
@@ -25,8 +27,8 @@
   			<span class="navbar-toggler-icon"></span>
   		</button>
   		
-  		<div class="collapse navbar-collapse" id="navbarSupportedContent">
-  		</div>
+  		<div class="collapse navbar-collapse text-right" id="navbarSupportedContent"></div>
+        <div class="top-config"><i onclick="$( '#config-modal' ).modal();" class="fa fa-cog fa-2x" aria-hidden="true"></i></div>
   	</nav>
 	
 	<div class="main">
@@ -58,10 +60,34 @@
 	   		</div>
 		</div>
 	</div>
+ 
+ 
+    <div class="modal" tabindex="-1" role="dialog" id="config-modal" aria-labelledby="gridSystemModalLabel">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="gridSystemModalLabel">&nbsp;</h4>
+                        <button type="button" class="close" data-dismiss="modal" onclick="clearModal(); return false;" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                        <div class="modal-body" id="modal-body">
+                            <div class="form-group row justify-content-md-center">
+                                <label for="trValidTime" class="text-right col-sm-2 ml-auto col-form-label">write sleep time</label>
+                                <div class="col-sm-3 mr-auto">
+                                    <input name="ConfigWriteSleepTime" maxlength="200" type="text" class="form-control" th:id="ConfigWriteSleepTime" placeholder="0" value="3" />
+                                </div>
+                            </div>
+                    </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" onclick="clearModal(); return false;" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 	
-	<script type="text/javascript" th:src="@{/js/jquery-3.2.1.min.js}"></script>
-	<script type="text/javascript" th:src="@{/js/popper.min.js}"></script>
-    <script type="text/javascript" th:src="@{/bootstrap/js/bootstrap.min.js}"></script>
+ 
+    <script type="text/javascript" src="/webjars/jquery/jquery.min.js"></script>
+    <script type="text/javascript" th:src="@{/js/popper.min.js}"></script>
+    <script type="text/javascript" src="/webjars/bootstrap/js/bootstrap.min.js"></script>
     <script type="text/javascript" th:src="@{/js/feigRFID.js}"></script>
     
     <div th:replace="js"></div>
