@@ -35,8 +35,9 @@ public class ReaderInfo {
 			byte modeAdr = 1;
 			byte antennaAdr = 15;
 			byte rfAdr = 3;
-			// byte RelaisAdr = 9;
+			byte relaisAdr = 9;
 			String stMode = null;
+			String relais = null;
 	
 	
 			try {
@@ -71,6 +72,13 @@ public class ReaderInfo {
 				int intRf = fedm
 						.getConfigParaAsInteger(de.feig.ReaderConfig.AirInterface.Antenna.UHF.No1.OutputPower, true);
 	
+				
+				fedm.setData(FedmIscReaderID.FEDM_ISC_TMP_READ_CFG_ADR, relaisAdr);
+				int relaisInt = fedm
+						.getConfigParaAsInteger(de.feig.ReaderConfig.DigitalIO.Relay.No1.ReadEventActivation.AntennaNo, true);
+				if(relaisInt == 15) { relais = "on"; }
+				if(relaisInt == 0) { relais = "off"; }
+				
 				// fedm.setData(FedmIscReaderID.FEDM_ISC_TMP_WRITE_CFG_ADR,
 				// RelaisAdr);
 				// fedm.sendProtocol((byte)0x80);
@@ -103,7 +111,8 @@ public class ReaderInfo {
 				result.put("readerTime", readerTime);
 				result.put("antenna", strAntenna);
 				result.put("power", Integer.toString(rf));
-	
+				result.put("relais", relais);
+				
 			} catch (FePortDriverException e) {
 				// TODO Auto-generated catch block
 				//e.printStackTrace();

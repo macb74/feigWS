@@ -46,7 +46,7 @@ public class ReaderRelais {
 			///fedm.sendProtocol((byte)0x63);
 
 			//System.out.println("Reset...");
-			log.error("{} setting Relais to: {}",  con.getHost(), mode);
+			log.info("{} setting Relais to: {}",  con.getHost(), mode);
 
 		} catch (FePortDriverException e) {
 			// TODO Auto-generated catch block

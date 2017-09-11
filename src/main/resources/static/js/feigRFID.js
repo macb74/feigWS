@@ -68,9 +68,9 @@ function handleWriteButtons(r, mode) {
 					$('#faultstring-write-' + r).css("display","block");
 				}	
 				
-			}		
+			}
+			isRunning = false;
 		});
-		isRunning = false;
 	}
 
 	if(mode == 0) {
@@ -90,7 +90,6 @@ function handleStopWrite(r) {
 
 function getReaderData(r, a) {
 	var action = 'info';
-	var error = true;
 	var readerIp = r.replace(/_/g, '.');
 	
 	switch(a) {
@@ -118,43 +117,53 @@ function getReaderData(r, a) {
 			var newval = 'on';
 			if($('#relais-'+r).val() == 'on') { newval = 'off'; }
 			action = 'relais/' + newval;
-			$('#relais-'+r).val(newval)
 	}
 	
 	$('#faultstring-' + r).css("display","none");
 	
+	
 	if(action != 'info') { 
-		var x = $.getJSON( '/api/' + readerIp + '/' + action);
+		isRunning = true;
+		var jqxhr = $.getJSON( '/api/' + readerIp + '/' + action);
+		jqxhr.done(function( data ) {
+			getReaderInfo(r);
+			isRunning = false;
+		});
+	} else {
+		getReaderInfo(r);
 	}
 
-	if(!isRunning) {
-		isRunning = true;
-		
-		var jqxhr = $.getJSON( '/api/' + readerIp + '/info');
-		jqxhr.done(function( data ) {
-			if(data != "") {
-				$.each( data, function( key, val ) {
-					if(key == "mode") { 
-						error = false;
-					}
-					
-					if(key == "files") {
-						setTableData(r, val, readerIp);
-					}
-					
-					$('#' + key + '-' + r).val(val);
-				});
-			}
-	
-			if(error) {
-				$('#faultstring-' + r).html('no reader connection');
-				$('#faultstring-' + r).css("display","block");
-			}
-			
-		});
-		isRunning = false;
-	}
 }
+
+
+function getReaderInfo(r) {
+	
+	var readerIp = r.replace(/_/g, '.');
+	var error = true;
+	
+	var jqxhr = $.getJSON( '/api/' + readerIp + '/info');
+	jqxhr.done(function( data ) {
+		if(data != "") {
+			$.each( data, function( key, val ) {
+				if(key == "mode") { 
+					error = false;
+				}
+				
+				if(key == "files") {
+					setTableData(r, val, readerIp);
+				}
+				
+				$('#' + key + '-' + r).val(val);
+			});
+		}
+
+		if(error) {
+			$('#faultstring-' + r).html('no reader connection');
+			$('#faultstring-' + r).css("display","block");
+		}
+	});
+}
+
 
 function setTableData(r, val, readerIp) {
 	table = "";
@@ -195,9 +204,9 @@ function handleReaderResults(r, file, mode) {
 		//$( target ).html( '' );
 		jqxhr.done(function( data ) {
 			$( target ).html( showReaderResults(data) );
+			isRunning = false;
 		});
 		
-		isRunning = false;
 	}
 }
 
