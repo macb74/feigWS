@@ -114,6 +114,11 @@ function getReaderData(r, a) {
 			if($('#mode-'+r).val() == 'BRM') { newmode = 'ISO'; }
 			action = 'mode/' + newmode;
 			break;
+		case 6:
+			var newval = 'on';
+			if($('#relais-'+r).val() == 'on') { newval = 'off'; }
+			action = 'relais/' + newval;
+			$('#relais-'+r).val(newval)
 	}
 	
 	$('#faultstring-' + r).css("display","none");
