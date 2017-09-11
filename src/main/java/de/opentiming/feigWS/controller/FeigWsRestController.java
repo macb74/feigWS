@@ -21,6 +21,7 @@ import de.opentiming.feigWS.reader.FedmConnect;
 import de.opentiming.feigWS.reader.ReaderInfo;
 import de.opentiming.feigWS.reader.ReaderMode;
 import de.opentiming.feigWS.reader.ReaderPower;
+import de.opentiming.feigWS.reader.ReaderRelais;
 import de.opentiming.feigWS.reader.ReaderResultFiles;
 import de.opentiming.feigWS.reader.ReaderValidTime;
 import de.opentiming.feigWS.reader.ReaderWriteTag;
@@ -115,6 +116,13 @@ public class FeigWsRestController {
     	FileOutput fo = new FileOutput(env.getProperty("file.output"));
     	fo.setHost(reader);
     	return fo.resetReaderFile();
+    }
+    
+    @RequestMapping(value="/{reader}/relais/{value}", method=RequestMethod.GET)
+    public boolean setRelais(@PathVariable String reader, @PathVariable String value) {
+    	FedmConnect con = connections.get(reader);
+		ReaderRelais r = new ReaderRelais(con);
+		return r.setNewMode(value);
     }
     
     @RequestMapping(value="/{reader}/write/{value}", method=RequestMethod.GET)
