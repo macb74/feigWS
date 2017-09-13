@@ -57,10 +57,10 @@
        <div class="form-group row justify-content-md-center">
           <label for="antenna" class="text-right col-sm-2 ml-auto col-form-label">Relais:</label>
           <div class="col-sm-3">
-              <input name="relais" maxlength="200" type="text" class="form-control" th:id="@{relais-{reader}(reader=${readerName})}" placeholder="on" value="on" />
+              <input name="relais" maxlength="200" type="text" class="form-control" th:id="@{relais-{reader}(reader=${readerName})}" placeholder="on" value="on" readonly="true" />
           </div>
           <div class="col-sm-1 mr-auto">
-              <a class="btn btn-success btn-w90" href="#" th:onclick="'getReaderData(\'' + ${readerName} + '\',6); return false;'" role="button">SET</a>
+              <a class="btn btn-success btn-w90" href="#" th:onclick="'getReaderData(\'' + ${readerName} + '\',6); return false;'" role="button">CHANGE</a>
           </div>
        </div>
    
