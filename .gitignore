@@ -4,6 +4,7 @@ output/
 log/
 lib/
 maven-repository/
+*.zip
 
 ### STS ###
 .apt_generated

@@ -55,7 +55,7 @@
 		<dependency>
 			<groupId>de.feig</groupId>
 			<artifactId>OBIDISC4J</artifactId>
-			<version>4.06.06</version>
+			<version>4.8.1</version>
 		</dependency>
 		
 		<dependency>
@@ -87,6 +87,5 @@
 			</plugin>
 		</plugins>
 	</build>
-
 
 </project>
