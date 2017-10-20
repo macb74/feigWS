@@ -42,7 +42,7 @@ public class ReaderMode {
 			fedm.sendProtocol((byte)0x81);
 			fedm.sendProtocol((byte)0x63);
 			
-			log.error("{} setting {} mode",  con.getHost(), mode);
+			log.info("{} setting {} mode",  con.getHost(), mode);
 		} catch (FePortDriverException e) {
 			// TODO Auto-generated catch block
 			//e.printStackTrace();
