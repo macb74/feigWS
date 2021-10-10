@@ -45,7 +45,7 @@ public class ReaderResultFiles {
 		
 		List<String> lines = null;
 		try {
-			Path file = Paths.get(directory + "/" + readerFile + ".out");
+			Path file = Paths.get(directory + "/" + readerFile);
 			lines = Files.readAllLines(file, Charset.forName("UTF-8"));
 			if(lines.size() != 0) { lines.remove(0); }
 		} catch (IOException e) {

@@ -34,7 +34,7 @@ public class FeigWsApplicationRunner implements ApplicationRunner {
 		for( String reader : readers) {
 			
 			/*
-			 * Output Fiele rollen
+			 * Output File rollen
 			 */
 			FileOutput fo = new FileOutput(env.getProperty("file.output"));
 			fo.setHost(reader);

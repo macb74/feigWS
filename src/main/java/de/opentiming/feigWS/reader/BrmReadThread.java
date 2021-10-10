@@ -82,12 +82,6 @@ public class BrmReadThread implements Runnable {
 
 	}
 
-	/**
-	 * Auslesen des Buffers
-	 * 
-	 * @param fedm
-	 * @param sets
-	 */
 	private void readBuffer() {
 
 		if (fedm == null) {
@@ -95,20 +89,13 @@ public class BrmReadThread implements Runnable {
 		}
 
 		FedmIscReaderInfo readerInfo = fedm.getReaderInfo();
-		
+
 		// read data from reader
 		// read max. possible no. of data sets: request 255 data sets
 		try {
-			switch (readerInfo.readerType) {
-			case de.feig.FedmIscReaderConst.TYPE_ISCLR200:
-				fedm.setData(FedmIscReaderID.FEDM_ISCLR_TMP_BRM_SETS, sets);
-				fedm.sendProtocol((byte) 0x21);
-				break;
-			default:
-				fedm.setData(FedmIscReaderID.FEDM_ISC_TMP_ADV_BRM_SETS, sets);
-				fedm.sendProtocol((byte) 0x22);
-				break;
-			}
+
+			fedm.setData(FedmIscReaderID.FEDM_ISC_TMP_ADV_BRM_SETS, sets);
+			fedm.sendProtocol((byte) 0x22);
 
 			FedmBrmTableItem[] brmItems = null;
 			log.info("{} Anzahl Tags: {}", con.getHost(), fedm.getTableLength(FedmIscReaderConst.BRM_TABLE));

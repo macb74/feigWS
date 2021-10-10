@@ -10,7 +10,7 @@
                <input name="power" maxlength="200" type="text" class="form-control" th:id="@{power-{reader}(reader=${readerName})}" placeholder="Power" value="" />
            </div>
            <div class="col-sm-1 mr-auto">
-               <a class="btn btn-success btn-w90" href="#" th:onclick="'getReaderData(\'' + ${readerName} + '\',3); return false;'" role="button">SET</a>
+               <a class="btn btn-success btn-w90" href="#" th:onclick="getReaderData([[${readerName}]],3); return false;" role="button">SET</a>
            </div>
        </div>
        
@@ -20,7 +20,7 @@
                <input name="transponderValidTime" maxlength="200" type="text" class="form-control" th:id="@{transponderValidTime-{reader}(reader=${readerName})}" placeholder="Transponder Valid Time" value="" />
            </div>
            <div class="col-sm-1 mr-auto">
-               <a class="btn btn-success btn-w90" href="#" th:onclick="'getReaderData(\'' + ${readerName} + '\',2); return false;'" role="button">SET</a>
+               <a class="btn btn-success btn-w90" href="#" th:onclick="getReaderData([[${readerName}]],2); return false;" role="button">SET</a>
            </div>
        </div>
    
@@ -30,7 +30,7 @@
                <input name="mode" maxlength="200" type="text" class="form-control" th:id="@{mode-{reader}(reader=${readerName})}" placeholder="Mode" value="" readonly="true" />
            </div>
            <div class="col-sm-1 mr-auto">
-               <a class="btn btn-success btn-w90" href="#" th:onclick="'getReaderData(\'' + ${readerName} + '\',5); return false;'" role="button">CHANGE</a>
+               <a class="btn btn-success btn-w90" href="#" th:onclick="getReaderData([[${readerName}]],5); return false;" role="button">CHANGE</a>
            </div>
        </div>
    
@@ -50,7 +50,7 @@
               <input name="antenna" maxlength="200" type="text" class="form-control" th:id="@{antenna-{reader}(reader=${readerName})}" placeholder="Antennen" value="" />
           </div>
           <div class="col-sm-1 mr-auto">
-              <a class="btn btn-success btn-w90" href="#" th:onclick="'getReaderData(\'' + ${readerName} + '\',0); return false;'" role="button">SET</a>
+              <a class="btn btn-success btn-w90" href="#" th:onclick="getReaderData([[${readerName}]],0); return false;" role="button">SET</a>
           </div>
        </div>
 
@@ -60,7 +60,7 @@
               <input name="relais" maxlength="200" type="text" class="form-control" th:id="@{relais-{reader}(reader=${readerName})}" placeholder="on" value="on" readonly="true" />
           </div>
           <div class="col-sm-1 mr-auto">
-              <a class="btn btn-success btn-w90" href="#" th:onclick="'getReaderData(\'' + ${readerName} + '\',6); return false;'" role="button">CHANGE</a>
+              <a class="btn btn-success btn-w90" href="#" th:onclick="getReaderData([[${readerName}]],6); return false;" role="button">CHANGE</a>
           </div>
        </div>
    
@@ -68,10 +68,10 @@
            <div class="col-sm-2 ml-auto">
            </div>
           <div class="col-sm-3 text-right">
-            <a class="btn btn-success" href="#" th:onclick="'getReaderData(\'' + ${readerName} + '\',-1); return false;'" role="button">UPDATE</a>
+            <a class="btn btn-success" href="#" th:onclick="getReaderData([[${readerName}]],-1); return false;" role="button">UPDATE</a>
           </div>
            <div class="col-sm-1 mr-auto">
-               <a class="btn btn-danger" href="#" th:onclick="'getReaderData(\'' + ${readerName} + '\',4); return false;'" role="button">CUT READER FILE</a>
+               <a class="btn btn-danger" href="#" th:onclick="getReaderData([[${readerName}]],4); return false;" role="button">CUT READER FILE</a>
            </div>
        </div>
     </form>

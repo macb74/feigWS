@@ -69,22 +69,9 @@ public class FedmConnect implements FeIscListener {
 	            
 	        	fedm.addEventListener(this, FeIscListener.RECEIVE_STRING_EVENT);
 	        	fedm.addEventListener(this, FeIscListener.SEND_STRING_EVENT);
-	        		        	
-	            switch(readerInfo.readerType)
-	            {
-	                case de.feig.FedmIscReaderConst.TYPE_ISCMR200:
-	                case de.feig.FedmIscReaderConst.TYPE_ISCLR2000:
-	                case de.feig.FedmIscReaderConst.TYPE_ISCMRU200:
-	                case de.feig.FedmIscReaderConst.TYPE_ISCLRU1000:
-	                case de.feig.FedmIscReaderConst.TYPE_ISCLRU1002:
-	                case de.feig.FedmIscReaderConst.TYPE_ISCLRU2000:
-	                case de.feig.FedmIscReaderConst.TYPE_ISCLRU3000:
-	                    fedm.setProtocolFrameSupport(Fedm.PRT_FRAME_ADVANCED);
-	                    break;                    
-	                default:
-	                    fedm.setProtocolFrameSupport(Fedm.PRT_FRAME_STANDARD);
-	                    break;
-	            }
+
+				fedm.setProtocolFrameSupport(Fedm.PRT_FRAME_ADVANCED);
+
 	            log.info("{} open", host);
 	            
 	            //log.info("{} set Time", host);
